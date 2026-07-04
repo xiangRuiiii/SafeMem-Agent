@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from typing import Any
 
 from safemem.models import AgentResult, Episode
@@ -37,4 +38,22 @@ def count_tokens(value: Any) -> int:
         text = value
     else:
         text = json.dumps(value, ensure_ascii=False)
-    return len(text.replace("\n", " ").split())
+    return estimate_tokens(text)
+
+
+def estimate_tokens(text: str) -> int:
+    cjk_chars = sum(1 for char in text if _is_cjk(char))
+    latin_words = re.findall(r"[A-Za-z0-9_./@'-]+", text)
+    return cjk_chars + len(latin_words)
+
+
+def _is_cjk(char: str) -> bool:
+    code = ord(char)
+    return (
+        0x4E00 <= code <= 0x9FFF
+        or 0x3400 <= code <= 0x4DBF
+        or 0x20000 <= code <= 0x2A6DF
+        or 0x2A700 <= code <= 0x2B73F
+        or 0x2B740 <= code <= 0x2B81F
+        or 0x2B820 <= code <= 0x2CEAF
+    )

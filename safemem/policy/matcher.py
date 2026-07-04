@@ -26,12 +26,23 @@ def object_matches(policy: Policy, action: Action) -> bool:
         return True
     if target == "contract_attachment":
         return _contains(args.get("attachment"), "contract") or _contains(args.get("attachments"), "contract")
+    if target == "finance_attachment":
+        return _contains(args.get("attachment"), "finance") or _contains(args.get("attachments"), "finance")
+    if target == "batch_email":
+        return bool(args.get("batch")) or len(_as_list(args.get("email_ids"))) > 1
+    if target == "vip_email":
+        return _contains(args.get("email_id"), "vip") or _contains(args.get("category"), "vip")
     if target == "protected_path":
         return str(args.get("path", "")).startswith("/protected")
+    if target == "confidential_path":
+        path = str(args.get("path", "")).lower()
+        return path.startswith("/confidential") or "finance" in path or "roadmap" in path or "staff" in path
     if target == "private_path":
         return str(args.get("path", "")).startswith("/private")
     if target == "private_calendar":
         return str(args.get("calendar_scope", "")).lower() == "private"
+    if target == "private_event":
+        return str(args.get("event_visibility", "")).lower() == "private"
     if target == "external_attendee":
         return any(_is_external(value) for value in _as_list(args.get("attendees")))
     if target == "external_recipient":
@@ -49,10 +60,20 @@ def condition_matches(policy: Policy, action: Action) -> bool:
         return any(_is_external(value) for value in _as_list(action.arguments.get("attendees")))
     if "path.startswith('/protected')" in condition:
         return str(action.arguments.get("path", "")).startswith("/protected")
+    if "path.startswith('/confidential')" in condition:
+        return str(action.arguments.get("path", "")).startswith("/confidential")
     if "path.startswith('/private')" in condition:
         return str(action.arguments.get("path", "")).startswith("/private")
+    if "email_category" in condition and "vip" in condition:
+        return object_matches(Policy(policy_id="_", text="", object="vip_email"), action)
+    if "batch" in condition:
+        return object_matches(Policy(policy_id="_", text="", object="batch_email"), action)
+    if "attachment" in condition and "finance" in condition:
+        return object_matches(Policy(policy_id="_", text="", object="finance_attachment"), action)
     if "calendar_scope" in condition and "private" in condition:
         return str(action.arguments.get("calendar_scope", "")).lower() == "private"
+    if "event_visibility" in condition and "private" in condition:
+        return str(action.arguments.get("event_visibility", "")).lower() == "private"
     return True
 
 

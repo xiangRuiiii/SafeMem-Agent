@@ -19,9 +19,9 @@ class SummaryPolicyAgent(BaseAgent):
         text = " ".join(episode.assembled_policy).lower()
         if not text:
             decision = "allow"
-        elif "confirm" in text or "confirmation" in text:
+        elif _has_any(text, ["confirm", "confirmation", "approval", "确认", "批准", "同意"]):
             decision = "ask_confirmation"
-        elif "do not" in text or "never" in text or "forbid" in text:
+        elif _has_any(text, ["do not", "never", "forbid", "prohibit", "禁止", "不得", "不允许"]):
             decision = "block"
         else:
             decision = "allow"
@@ -59,3 +59,7 @@ class ExactReplayAgent(BaseAgent):
             policy_context=[policy.to_dict() for policy in episode.initial_policy],
             notes="Exact active policy replay plus preflight.",
         )
+
+
+def _has_any(text: str, terms: list[str]) -> bool:
+    return any(term in text for term in terms)
