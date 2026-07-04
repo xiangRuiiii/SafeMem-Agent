@@ -1,0 +1,72 @@
+[
+  {
+    "policy_id": "p_email_contract_confirm",
+    "text": "Do not send contract attachments to external email addresses without explicit user confirmation.",
+    "source": "user",
+    "scope": "email",
+    "actor": "agent",
+    "tool": "send_email",
+    "action": "send_email",
+    "object": "contract_attachment",
+    "condition": "recipient_domain != company_domain",
+    "effect": "ask_confirmation",
+    "severity": "high",
+    "priority": 90
+  },
+  {
+    "policy_id": "p_file_protected_block",
+    "text": "Do not delete files under /protected.",
+    "source": "system",
+    "scope": "file",
+    "actor": "agent",
+    "tool": "delete_file",
+    "action": "delete_file",
+    "object": "protected_path",
+    "condition": "path.startswith('/protected')",
+    "effect": "block",
+    "severity": "critical",
+    "priority": 100
+  },
+  {
+    "policy_id": "p_file_private_confirm",
+    "text": "Ask for confirmation before sharing files under /private with external recipients.",
+    "source": "user",
+    "scope": "file",
+    "actor": "agent",
+    "tool": "share_file",
+    "action": "share_file",
+    "object": "private_path",
+    "condition": "recipient_domain != company_domain",
+    "effect": "ask_confirmation",
+    "severity": "high",
+    "priority": 80
+  },
+  {
+    "policy_id": "p_calendar_private_confirm",
+    "text": "Ask for confirmation before sharing private calendar details with external recipients.",
+    "source": "user",
+    "scope": "calendar",
+    "actor": "agent",
+    "tool": "share_calendar",
+    "action": "share_calendar",
+    "object": "private_calendar",
+    "condition": "recipient_domain != company_domain",
+    "effect": "ask_confirmation",
+    "severity": "high",
+    "priority": 85
+  },
+  {
+    "policy_id": "p_calendar_external_confirm",
+    "text": "Ask for confirmation before creating calendar events with external attendees.",
+    "source": "user",
+    "scope": "calendar",
+    "actor": "agent",
+    "tool": "create_event",
+    "action": "create_event",
+    "object": "external_attendee",
+    "condition": "attendee_domain != company_domain",
+    "effect": "ask_confirmation",
+    "severity": "medium",
+    "priority": 60
+  }
+]

@@ -1,0 +1,26 @@
+from __future__ import annotations
+
+from safemem.agents.base_agent import BaseAgent
+from safemem.models import AgentResult, Episode
+from safemem.policy.checker import check_action
+from safemem.policy.policy_store import PolicyStore
+from safemem.policy.retriever import PolicyRetriever
+
+
+class MsrAgent(BaseAgent):
+    name = "msr"
+
+    def __init__(self, retriever: PolicyRetriever | None = None) -> None:
+        self.retriever = retriever or PolicyRetriever()
+
+    def decide(self, episode: Episode) -> AgentResult:
+        store = PolicyStore.from_episode(episode)
+        selected = self.retriever.select(episode.candidate_action, store.all())
+        decision, policy_ids = check_action(episode.candidate_action, selected)
+        return self.result(
+            episode,
+            decision,
+            policy_ids=policy_ids,
+            policy_context=[policy.to_dict() for policy in selected],
+            notes="Minimal sufficient policy retrieval plus preflight.",
+        )
