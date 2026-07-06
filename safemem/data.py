@@ -39,5 +39,8 @@ def write_csv(path: str | Path, rows: list[dict[str, Any]]) -> None:
     with target.open("w", encoding="utf-8", newline="") as handle:
         handle.write(",".join(headers) + "\n")
         for row in rows:
-            values = [str(row.get(header, "")).replace(",", ";") for header in headers]
+            values = [
+                "" if row.get(header) is None else str(row.get(header, "")).replace(",", ";")
+                for header in headers
+            ]
             handle.write(",".join(values) + "\n")

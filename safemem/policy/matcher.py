@@ -30,12 +30,16 @@ def object_matches(policy: Policy, action: Action) -> bool:
         return bool(args.get("attachment") or args.get("attachments"))
     if target == "finance_attachment":
         return _contains(args.get("attachment"), "finance") or _contains(args.get("attachments"), "finance")
+    if target == "legal_attachment":
+        return _contains(args.get("attachment"), "legal") or _contains(args.get("attachments"), "legal")
     if target == "batch_email":
         return bool(args.get("batch")) or len(_as_list(args.get("email_ids"))) > 1
     if target == "vip_email":
         return _contains(args.get("email_id"), "vip") or _contains(args.get("category"), "vip")
     if target == "protected_path":
         return str(args.get("path", "")).startswith("/protected")
+    if target == "public_path":
+        return str(args.get("path", "")).startswith("/public")
     if target == "confidential_path":
         path = str(args.get("path", "")).lower()
         return path.startswith("/confidential") or "finance" in path or "roadmap" in path or "staff" in path
@@ -56,9 +60,13 @@ def condition_matches(policy: Policy, action: Action) -> bool:
     condition = policy.condition.lower().strip()
     if not condition:
         return True
-    if "recipient_domain" in condition:
+    if "recipient_domain == company_domain" in condition:
+        return not action_has_external_target(action)
+    if "recipient_domain != company_domain" in condition:
         return action_has_external_target(action)
-    if "attendee_domain" in condition:
+    if "attendee_domain == company_domain" in condition:
+        return not any(_is_external(value) for value in _as_list(action.arguments.get("attendees")))
+    if "attendee_domain != company_domain" in condition:
         return any(_is_external(value) for value in _as_list(action.arguments.get("attendees")))
     if "path.startswith('/protected')" in condition:
         return str(action.arguments.get("path", "")).startswith("/protected")
@@ -66,6 +74,8 @@ def condition_matches(policy: Policy, action: Action) -> bool:
         return str(action.arguments.get("path", "")).startswith("/confidential")
     if "path.startswith('/private')" in condition:
         return str(action.arguments.get("path", "")).startswith("/private")
+    if "path.startswith('/public')" in condition:
+        return str(action.arguments.get("path", "")).startswith("/public")
     if "email_category" in condition and "vip" in condition:
         return object_matches(Policy(policy_id="_", text="", object="vip_email"), action)
     if "batch" in condition:

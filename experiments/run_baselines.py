@@ -12,12 +12,13 @@ from safemem.agents.baselines import (
     AllPolicyAgent,
     ExactReplayAgent,
     NoPolicyAgent,
+    OracleMinimalAgent,
     SummaryPolicyAgent,
 )
 from safemem.agents.msr_agent import MsrAgent
 from safemem.data import load_episodes, write_csv, write_json
 from safemem.eval.judge import judge_result
-from safemem.eval.metrics import summarize, summarize_by_state
+from safemem.eval.metrics import summarize, summarize_by_case, summarize_by_state
 
 
 def main() -> None:
@@ -33,6 +34,7 @@ def main() -> None:
         SummaryPolicyAgent(),
         AllPolicyAgent(),
         ExactReplayAgent(),
+        OracleMinimalAgent(),
         MsrAgent(),
     ]
 
@@ -44,10 +46,12 @@ def main() -> None:
     result_rows = [result.to_dict() for result in results]
     summary_rows = summarize(results)
     state_rows = summarize_by_state(results, episodes)
+    case_rows = summarize_by_case(results, episodes)
 
     write_json(ROOT / "outputs" / "logs" / f"{output_tag}_results.json", result_rows)
     write_csv(ROOT / "outputs" / "tables" / f"{output_tag}_summary.csv", summary_rows)
     write_csv(ROOT / "outputs" / "tables" / f"{output_tag}_by_state.csv", state_rows)
+    write_csv(ROOT / "outputs" / "tables" / f"{output_tag}_by_case.csv", case_rows)
 
     for row in summary_rows:
         print(row)

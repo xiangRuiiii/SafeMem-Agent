@@ -145,7 +145,7 @@ class AgentResult:
     false_refusal: bool = False
     task_success: bool = False
     correct: bool = False
-    policy_coverage: float = 0.0
+    policy_coverage: float | None = None
     irrelevant_policy_rate: float = 0.0
     retrieved_policy_count: int = 0
 

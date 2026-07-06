@@ -38,6 +38,8 @@ class PolicyRetriever:
             score -= 7.0
         if not object_matches(policy, action):
             score -= 6.0
+        if not condition_matches(policy, action):
+            score -= 7.0
         return score
 
     def _risk_matches(self, policy: Policy, action: Action) -> bool:

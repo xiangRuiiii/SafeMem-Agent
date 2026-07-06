@@ -4,7 +4,7 @@ import unittest
 from collections import Counter
 from pathlib import Path
 
-from safemem.agents.baselines import AllPolicyAgent
+from safemem.agents.baselines import AllPolicyAgent, OracleMinimalAgent
 from safemem.agents.msr_agent import MsrAgent
 from safemem.data import load_episodes
 from safemem.eval.judge import judge_result
@@ -73,6 +73,46 @@ class MvpTest(unittest.TestCase):
         result = judge_result(risky, MsrAgent().decide(risky))
         self.assertGreaterEqual(result.policy_coverage, 0.66)
         self.assertLess(result.retrieved_policy_count, risky.policy_pool_size)
+
+        safe = episodes[1]
+        safe_result = judge_result(safe, MsrAgent().decide(safe))
+        self.assertIsNone(safe_result.policy_coverage)
+
+    def test_mvp_plus_90_distribution(self) -> None:
+        en = load_episodes(ROOT / "data" / "episodes" / "mvp_plus_90_en.jsonl")
+        zh = load_episodes(ROOT / "data" / "episodes" / "mvp_plus_90_zh.jsonl")
+        self.assertEqual(len(en), 90)
+        self.assertEqual(len(zh), 90)
+        self.assertEqual([episode.episode_id for episode in en], [episode.episode_id for episode in zh])
+        self.assertEqual(Counter(episode.domain for episode in en), {"email": 30, "file": 30, "calendar": 30})
+        self.assertEqual(
+            Counter(episode.policy_carriage_state for episode in en),
+            {
+                "policy_preserved": 18,
+                "policy_absent": 18,
+                "policy_weakened": 18,
+                "policy_misbound": 18,
+                "policy_over_included": 18,
+            },
+        )
+        self.assertEqual(Counter(episode.is_safe_case for episode in en), {False: 54, True: 36})
+        self.assertTrue(all(episode.policy_pool_size >= 30 for episode in en))
+
+    def test_policy_pressure_groups(self) -> None:
+        for count in [0, 10, 30, 50]:
+            episodes = load_episodes(
+                ROOT / "data" / "episodes" / "pressure" / f"mvp_plus_90_irrelevant_{count}_en.jsonl"
+            )
+            self.assertEqual(len(episodes), 90)
+            for episode in episodes:
+                self.assertGreaterEqual(episode.policy_pool_size, len(episode.initial_policy))
+                self.assertEqual(len(episode.irrelevant_policy_ids), episode.policy_pool_size - len(episode.required_policy_ids()))
+
+    def test_oracle_minimal_uses_required_policies(self) -> None:
+        episode = load_episodes(ROOT / "data" / "episodes" / "mvp_plus_90_en.jsonl")[0]
+        result = judge_result(episode, OracleMinimalAgent().decide(episode))
+        self.assertEqual(set(result.context_policy_ids), set(episode.required_policy_ids()))
+        self.assertEqual(result.policy_coverage, 1.0)
 
 
 if __name__ == "__main__":

@@ -50,7 +50,7 @@ class AllPolicyAgent(BaseAgent):
 
 
 class ExactReplayAgent(BaseAgent):
-    name = "exact_replay"
+    name = "exact_active_replay"
 
     def decide(self, episode: Episode) -> AgentResult:
         policies = PolicyStore.from_episode(episode).all()
@@ -61,6 +61,23 @@ class ExactReplayAgent(BaseAgent):
             policy_ids=policy_ids,
             policy_context=[policy.to_dict() for policy in policies],
             notes="Exact active policy replay plus preflight.",
+        )
+
+
+class OracleMinimalAgent(BaseAgent):
+    name = "oracle_minimal"
+
+    def decide(self, episode: Episode) -> AgentResult:
+        store = PolicyStore.from_episode(episode)
+        policies = store.get_many(episode.required_policy_ids())
+        decision, policy_ids = check_action(episode.candidate_action, policies)
+        return self.result(
+            episode,
+            decision,
+            policy_ids=policy_ids,
+            context_policy_ids=[policy.policy_id for policy in policies],
+            policy_context=[policy.to_dict() for policy in policies],
+            notes="Oracle minimal policy set from required_policy_ids.",
         )
 
 
