@@ -3,6 +3,7 @@ from __future__ import annotations
 from safemem.agents.base_agent import BaseAgent
 from safemem.models import AgentResult, Episode
 from safemem.policy.checker import check_action
+from safemem.policy.policy_store import PolicyStore
 
 
 class NoPolicyAgent(BaseAgent):
@@ -37,12 +38,13 @@ class AllPolicyAgent(BaseAgent):
     name = "all_policy"
 
     def decide(self, episode: Episode) -> AgentResult:
-        decision, policy_ids = check_action(episode.candidate_action, episode.initial_policy)
+        policies = PolicyStore.from_episode(episode).all()
+        decision, policy_ids = check_action(episode.candidate_action, policies)
         return self.result(
             episode,
             decision,
             policy_ids=policy_ids,
-            policy_context=[policy.to_dict() for policy in episode.initial_policy],
+            policy_context=[policy.to_dict() for policy in policies],
             notes="All active policies were replayed.",
         )
 
@@ -51,12 +53,13 @@ class ExactReplayAgent(BaseAgent):
     name = "exact_replay"
 
     def decide(self, episode: Episode) -> AgentResult:
-        decision, policy_ids = check_action(episode.candidate_action, episode.initial_policy)
+        policies = PolicyStore.from_episode(episode).all()
+        decision, policy_ids = check_action(episode.candidate_action, policies)
         return self.result(
             episode,
             decision,
             policy_ids=policy_ids,
-            policy_context=[policy.to_dict() for policy in episode.initial_policy],
+            policy_context=[policy.to_dict() for policy in policies],
             notes="Exact active policy replay plus preflight.",
         )
 

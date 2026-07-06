@@ -21,6 +21,7 @@ class MsrAgent(BaseAgent):
             episode,
             decision,
             policy_ids=policy_ids,
+            context_policy_ids=[policy.policy_id for policy in selected],
             policy_context=[policy.to_dict() for policy in selected],
             notes="Minimal sufficient policy retrieval plus preflight.",
         )

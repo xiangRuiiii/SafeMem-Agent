@@ -10,7 +10,7 @@ class PolicyStore:
 
     @classmethod
     def from_episode(cls, episode: Episode) -> "PolicyStore":
-        return cls(episode.initial_policy)
+        return cls(episode.policy_pool or episode.initial_policy)
 
     def all(self) -> list[Policy]:
         return list(self.policies)

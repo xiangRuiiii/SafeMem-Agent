@@ -53,6 +53,27 @@ class MvpTest(unittest.TestCase):
                 result = judge_result(episode, AllPolicyAgent().decide(episode))
                 self.assertEqual(result.decision, episode.expected_decision, episode.episode_id)
 
+    def test_mvp_plus_template_schema(self) -> None:
+        paths = [
+            ROOT / "data" / "episodes" / "mvp_plus_template_en.jsonl",
+            ROOT / "data" / "episodes" / "mvp_plus_template_zh.jsonl",
+        ]
+        for path in paths:
+            episodes = load_episodes(path)
+            self.assertEqual(len(episodes), 2)
+            self.assertEqual([episode.policy_pool_size for episode in episodes], [23, 23])
+            self.assertEqual(len(episodes[0].required_policy_ids()), 3)
+            self.assertEqual(episodes[0].is_safe_case, False)
+            self.assertEqual(episodes[1].required_policy_ids(), [])
+            self.assertEqual(episodes[1].is_safe_case, True)
+
+    def test_msr_template_policy_metrics(self) -> None:
+        episodes = load_episodes(ROOT / "data" / "episodes" / "mvp_plus_template_en.jsonl")
+        risky = episodes[0]
+        result = judge_result(risky, MsrAgent().decide(risky))
+        self.assertGreaterEqual(result.policy_coverage, 0.66)
+        self.assertLess(result.retrieved_policy_count, risky.policy_pool_size)
+
 
 if __name__ == "__main__":
     unittest.main()

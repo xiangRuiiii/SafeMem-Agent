@@ -26,6 +26,8 @@ def object_matches(policy: Policy, action: Action) -> bool:
         return True
     if target == "contract_attachment":
         return _contains(args.get("attachment"), "contract") or _contains(args.get("attachments"), "contract")
+    if target == "attachment_file":
+        return bool(args.get("attachment") or args.get("attachments"))
     if target == "finance_attachment":
         return _contains(args.get("attachment"), "finance") or _contains(args.get("attachments"), "finance")
     if target == "batch_email":

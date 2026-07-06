@@ -35,9 +35,9 @@ class PolicyRetriever:
         if policy.source in {"system", "user"}:
             score += 0.5
         if not tool_matches(policy, action):
-            score -= 2.0
+            score -= 7.0
         if not object_matches(policy, action):
-            score -= 2.0
+            score -= 6.0
         return score
 
     def _risk_matches(self, policy: Policy, action: Action) -> bool:
