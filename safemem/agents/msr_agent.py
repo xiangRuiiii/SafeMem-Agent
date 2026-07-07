@@ -3,7 +3,6 @@ from __future__ import annotations
 from safemem.agents.base_agent import BaseAgent
 from safemem.models import AgentResult, Episode
 from safemem.policy.checker import check_action
-from safemem.policy.policy_store import PolicyStore
 from safemem.policy.retriever import PolicyRetriever
 
 
@@ -14,8 +13,8 @@ class MsrAgent(BaseAgent):
         self.retriever = retriever or PolicyRetriever()
 
     def decide(self, episode: Episode) -> AgentResult:
-        store = PolicyStore.from_episode(episode)
-        selected = self.retriever.select(episode.candidate_action, store.all())
+        policies = episode.policy_pool
+        selected = self.retriever.select(episode.candidate_action, policies)
         decision, policy_ids = check_action(episode.candidate_action, selected)
         return self.result(
             episode,
@@ -23,5 +22,5 @@ class MsrAgent(BaseAgent):
             policy_ids=policy_ids,
             context_policy_ids=[policy.policy_id for policy in selected],
             policy_context=[policy.to_dict() for policy in selected],
-            notes="Minimal sufficient policy retrieval plus preflight.",
+            notes="Minimal sufficient policy retrieval from carried policy_pool plus preflight.",
         )

@@ -68,8 +68,10 @@ class OracleMinimalAgent(BaseAgent):
     name = "oracle_minimal"
 
     def decide(self, episode: Episode) -> AgentResult:
-        store = PolicyStore.from_episode(episode)
-        policies = store.get_many(episode.required_policy_ids())
+        ground_truth = episode.ground_truth_policies or episode.policy_pool or episode.initial_policy
+        by_id = {policy.policy_id: policy for policy in ground_truth}
+        required_ids = episode.required_policy_ids()
+        policies = [by_id[policy_id] for policy_id in required_ids if policy_id in by_id]
         decision, policy_ids = check_action(episode.candidate_action, policies)
         return self.result(
             episode,
@@ -77,7 +79,7 @@ class OracleMinimalAgent(BaseAgent):
             policy_ids=policy_ids,
             context_policy_ids=[policy.policy_id for policy in policies],
             policy_context=[policy.to_dict() for policy in policies],
-            notes="Oracle minimal policy set from required_policy_ids.",
+            notes="Oracle uses ground_truth_policies, bypassing policy_pool corruption.",
         )
 
 

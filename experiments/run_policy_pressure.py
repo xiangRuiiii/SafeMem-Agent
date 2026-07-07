@@ -112,7 +112,7 @@ def write_markdown_report(path: Path, rows: list[dict[str, object]]) -> None:
         "python experiments/run_policy_pressure.py",
         "```",
         "",
-        "All rows below have 90 episodes, 100% accuracy, 0% executed-violation rate, and 0% false-refusal rate for `all_policy`, `exact_active_replay`, `oracle_minimal`, and `msr`.",
+        "Each row summarizes 90 episodes. Safety metrics are emitted to `outputs/tables/policy_pressure_summary.csv`; this snapshot focuses on retrieval cost and retrieval quality.",
         "",
         "| Language | Irrelevant policies | all_policy / exact_active_replay token cost | oracle_minimal token cost | MSR token cost | MSR policy coverage | MSR irrelevant policy rate |",
         "| --- | ---: | ---: | ---: | ---: | ---: | ---: |",

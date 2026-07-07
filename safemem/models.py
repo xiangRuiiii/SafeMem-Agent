@@ -91,13 +91,23 @@ class Episode:
     allowed_decisions: list[str] = field(default_factory=list)
     forbidden_decisions: list[str] = field(default_factory=list)
     risk_level: str = ""
+    policy_registry: list[Policy] = field(default_factory=list)
+    ground_truth_policies: list[Policy] = field(default_factory=list)
+    policy_pool_corrupted: bool = False
+    corrupted_policy_ids: list[str] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Episode":
         initial_policy = [Policy.from_dict(item) for item in data.get("initial_policy", [])]
         policy_pool = [Policy.from_dict(item) for item in data.get("policy_pool", [])]
-        if not policy_pool:
+        if "policy_pool" not in data:
             policy_pool = list(initial_policy)
+        policy_registry = [Policy.from_dict(item) for item in data.get("policy_registry", [])]
+        if "policy_registry" not in data:
+            policy_registry = list(policy_pool)
+        ground_truth_policies = [Policy.from_dict(item) for item in data.get("ground_truth_policies", [])]
+        if "ground_truth_policies" not in data:
+            ground_truth_policies = list(policy_registry)
         required_policy_ids = list(
             data.get("required_policy_ids", data.get("labels", {}).get("required_policy_ids", []))
         )
@@ -123,6 +133,10 @@ class Episode:
             allowed_decisions=list(data.get("allowed_decisions", [])),
             forbidden_decisions=list(data.get("forbidden_decisions", [])),
             risk_level=data.get("risk_level", ""),
+            policy_registry=policy_registry,
+            ground_truth_policies=ground_truth_policies,
+            policy_pool_corrupted=bool(data.get("policy_pool_corrupted", False)),
+            corrupted_policy_ids=list(data.get("corrupted_policy_ids", [])),
         )
 
     def required_policy_ids(self) -> list[str]:
