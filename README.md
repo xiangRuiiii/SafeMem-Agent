@@ -56,5 +56,6 @@ python experiments/run_llm_eval.py --episodes data/episodes/mvp_plus_90_en.jsonl
 ```
 
 See `docs/llm_eval.md` for the API runner and recommended 90-episode order.
+See `docs/retrieval_eval.md` for BM25 and vector retrieval baselines.
 
 The scripts use only the Python standard library.

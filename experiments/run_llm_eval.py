@@ -10,6 +10,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from safemem.agents.llm_agent import (
+    LLM_COMPARISON_METHODS,
     LLM_FULL_METHODS,
     LLM_METHOD_GROUPS,
     SUPPORTED_LLM_METHODS,
@@ -37,7 +38,7 @@ def main() -> None:
     if args.limit:
         episodes = episodes[: args.limit]
 
-    methods = parse_methods(args.methods)
+    methods = methods_for_set(args.method_set) if args.method_set else parse_methods(args.methods)
     output_tag = args.tag or f"{episode_path.stem}_llm"
 
     if not args.run:
@@ -105,6 +106,12 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--tag", default="", help="Output filename tag.")
     parser.add_argument("--methods", default=DEFAULT_METHODS, help=f"Comma-separated methods. Default: {DEFAULT_METHODS}")
+    parser.add_argument(
+        "--method-set",
+        default="",
+        choices=["base", "retrieval_top3", "retrieval_all", "comparison_all"],
+        help="Named method set. Overrides --methods when set.",
+    )
     parser.add_argument("--episode-ids", default="", help="Optional comma-separated episode IDs to run.")
     parser.add_argument("--limit", type=int, default=0, help="Optional number of episodes from the start of the file.")
     parser.add_argument("--run", action="store_true", help="Actually call the LLM API. Without this flag, only preview prompts.")
@@ -130,6 +137,23 @@ def parse_methods(value: str) -> list[str]:
         supported = ", ".join(sorted(SUPPORTED_LLM_METHODS))
         raise SystemExit(f"Unsupported methods: {unknown}. Supported: {supported}")
     return methods
+
+
+def methods_for_set(name: str) -> list[str]:
+    if name == "base":
+        return list(LLM_FULL_METHODS)
+    if name == "retrieval_top3":
+        return [
+            "bm25_clean_top3",
+            "bm25_noisy_top3",
+            "embedding_clean_top3",
+            "embedding_noisy_top3",
+        ]
+    if name == "retrieval_all":
+        return [method for method in LLM_COMPARISON_METHODS if method.startswith(("bm25_", "embedding_"))]
+    if name == "comparison_all":
+        return list(LLM_COMPARISON_METHODS)
+    raise SystemExit(f"Unsupported method set: {name}")
 
 
 def resolve_path(value: str) -> Path:
