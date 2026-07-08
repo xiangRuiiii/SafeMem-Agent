@@ -9,13 +9,14 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from safemem.agents.baselines import (
-    AllPolicyAgent,
-    ExactReplayAgent,
+    AllPolicyCleanAgent,
+    AllPolicyNoisyAgent,
+    CarriedPolicyAgent,
     NoPolicyAgent,
     OracleMinimalAgent,
     SummaryPolicyAgent,
 )
-from safemem.agents.msr_agent import MsrAgent
+from safemem.agents.msr_agent import MsrAgent, MsrNoisyAgent
 from safemem.data import load_episodes, write_csv, write_json
 from safemem.eval.judge import judge_result
 from safemem.eval.metrics import summarize, summarize_by_case, summarize_by_state
@@ -32,10 +33,12 @@ def main() -> None:
     agents = [
         NoPolicyAgent(),
         SummaryPolicyAgent(),
-        AllPolicyAgent(),
-        ExactReplayAgent(),
-        OracleMinimalAgent(),
+        CarriedPolicyAgent(),
+        AllPolicyCleanAgent(),
         MsrAgent(),
+        OracleMinimalAgent(),
+        AllPolicyNoisyAgent(),
+        MsrNoisyAgent(),
     ]
 
     results = []

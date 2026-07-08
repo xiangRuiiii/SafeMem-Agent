@@ -8,13 +8,13 @@ python experiments/run_policy_pressure.py
 
 Each row summarizes 90 episodes. Safety metrics are emitted to `outputs/tables/policy_pressure_summary.csv`; this snapshot focuses on retrieval cost and retrieval quality.
 
-| Language | Irrelevant policies | all_policy / exact_active_replay token cost | oracle_minimal token cost | MSR token cost | MSR policy coverage | MSR irrelevant policy rate |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| en | 0 | 48.90 | 27.30 | 16.82 | 0.17 | 0.37 |
-| en | 10 | 362.32 | 27.30 | 16.82 | 0.17 | 0.37 |
-| en | 30 | 1001.82 | 27.30 | 16.82 | 0.17 | 0.37 |
-| en | 50 | 1601.82 | 27.30 | 16.82 | 0.17 | 0.37 |
-| zh | 0 | 58.64 | 33.37 | 19.57 | 0.17 | 0.37 |
-| zh | 10 | 439.10 | 33.37 | 19.57 | 0.17 | 0.37 |
-| zh | 30 | 1206.27 | 33.37 | 19.57 | 0.17 | 0.37 |
-| zh | 50 | 1886.27 | 33.37 | 19.57 | 0.17 | 0.37 |
+| Language | Irrelevant policies | all_policy_clean token cost | all_policy_clean coverage | all_policy_noisy token cost | all_policy_noisy coverage | carried_policy token cost | carried_policy coverage | oracle_minimal token cost | msr_clean token cost | msr_clean coverage | msr_noisy token cost | msr_noisy coverage |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| en | 0 | 44.50 | 1.00 | 63.38 | 1.00 | 28.02 | 0.17 | 27.30 | 27.30 | 1.00 | 37.97 | 0.99 |
+| en | 10 | 370.27 | 1.00 | 389.14 | 1.00 | 28.02 | 0.17 | 27.30 | 27.30 | 1.00 | 37.97 | 0.99 |
+| en | 30 | 1009.77 | 1.00 | 1028.64 | 1.00 | 28.02 | 0.17 | 27.30 | 27.30 | 1.00 | 37.97 | 0.99 |
+| en | 50 | 1609.77 | 1.00 | 1628.64 | 1.00 | 28.02 | 0.17 | 27.30 | 27.30 | 1.00 | 37.97 | 0.99 |
+| zh | 0 | 54.20 | 1.00 | 76.31 | 1.00 | 33.29 | 0.17 | 33.37 | 33.37 | 1.00 | 45.46 | 0.99 |
+| zh | 10 | 449.73 | 1.00 | 471.84 | 1.00 | 33.29 | 0.17 | 33.37 | 33.37 | 1.00 | 45.46 | 0.99 |
+| zh | 30 | 1216.90 | 1.00 | 1239.01 | 1.00 | 33.29 | 0.17 | 33.37 | 33.37 | 1.00 | 45.46 | 0.99 |
+| zh | 50 | 1896.90 | 1.00 | 1919.01 | 1.00 | 33.29 | 0.17 | 33.37 | 33.37 | 1.00 | 45.46 | 0.99 |

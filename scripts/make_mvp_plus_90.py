@@ -137,24 +137,32 @@ def make_episode(
     active_keys = list(dict.fromkeys(spec.get("active", required_keys)))
     source_policies = [policy_item(key) for key in active_keys]
     ground_truth_policies = [policy_item(key) for key in required_keys]
-    corrupted_required = corrupt_required_policies(state, ground_truth_policies, spec)
-    irrelevant_policies = select_irrelevant_policies(domain, active_keys, irrelevant_count, spec["action"])
-    policy_registry = source_policies + irrelevant_policies
-    carried_policies = source_policies if state == "policy_preserved" else corrupted_required
-    policy_pool = carried_policies + irrelevant_policies
+    corruption_artifacts = []
+    if state in {"policy_weakened", "policy_misbound"}:
+        corruption_artifacts = corrupt_required_policies(state, ground_truth_policies, spec)
+    clean_irrelevant_policies = select_irrelevant_policies(domain, active_keys, irrelevant_count, spec["action"])
+    canonical_policy_registry = source_policies + clean_irrelevant_policies
+    carried_policy = []
+    if state == "policy_preserved":
+        carried_policy = source_policies
+    elif state in {"policy_weakened", "policy_misbound"}:
+        carried_policy = corruption_artifacts
+    noisy_policy_pool = source_policies + corruption_artifacts + clean_irrelevant_policies
     corrupted_policy_ids = []
-    if state != "policy_preserved":
+    if state in {"policy_weakened", "policy_misbound"}:
         corrupted_policy_ids = [
             policy["policy_id"]
-            for policy in carried_policies
+            for policy in corruption_artifacts
             if policy["policy_id"] not in {POLICIES[key]["policy_id"] for key in required_keys}
         ]
     if state == "policy_over_included":
         over_included_policy = build_over_included_policy(domain, spec)
-        policy_pool = [over_included_policy] + source_policies + irrelevant_policies
+        carried_policy = [over_included_policy]
+        corruption_artifacts = [over_included_policy]
+        noisy_policy_pool = corruption_artifacts + source_policies + clean_irrelevant_policies
         corrupted_policy_ids.append(over_included_policy["policy_id"])
     required_policy_ids = [POLICIES[key]["policy_id"] for key in required_keys]
-    irrelevant_policy_ids = [policy["policy_id"] for policy in irrelevant_policies]
+    irrelevant_policy_ids = [policy["policy_id"] for policy in clean_irrelevant_policies]
     episode_id = f"{domain}_{seq:03d}_{state.replace('policy_', '')}_{spec['name']}"
 
     assembled_en, assembled_zh = assembled_policy(state, domain, spec, active_keys)
@@ -166,8 +174,12 @@ def make_episode(
         "task_goal_en": spec["task_en"],
         "task_goal_zh": spec["task_zh"],
         "initial_policy": source_policies,
-        "policy_pool": policy_pool,
-        "policy_registry": policy_registry,
+        "source_policies": source_policies,
+        "clean_irrelevant_policies": clean_irrelevant_policies,
+        "corruption_artifacts": corruption_artifacts,
+        "canonical_policy_registry": canonical_policy_registry,
+        "noisy_policy_pool": noisy_policy_pool,
+        "carried_policy": carried_policy,
         "ground_truth_policies": ground_truth_policies,
         "long_context_en": context(domain, state, spec, "en"),
         "long_context_zh": context(domain, state, spec, "zh"),
@@ -185,10 +197,11 @@ def make_episode(
         "unsafe_if_executed": spec["unsafe"],
         "is_safe_case": spec["safe"],
         "risk_level": spec["risk_level"],
+        "msr_policy_source": "canonical_policy_registry",
         "required_policy_ids": required_policy_ids,
         "irrelevant_policy_ids": irrelevant_policy_ids,
         "corrupted_policy_ids": corrupted_policy_ids,
-        "policy_pool_size": len(policy_pool),
+        "noisy_policy_pool_size": len(noisy_policy_pool),
         "policy_pool_corrupted": pool_corrupted,
         "labels": {
             "risk_type": spec["risk_type"],
@@ -273,8 +286,16 @@ def localize_episode(episode: dict[str, Any], lang: str) -> dict[str, Any]:
     out["risky_request"] = out.pop(f"risky_request{suffix}")
     remove_language_fields(out)
     out["initial_policy"] = [localize_policy(policy, lang) for policy in out["initial_policy"]]
-    out["policy_pool"] = [localize_policy(policy, lang) for policy in out["policy_pool"]]
-    out["policy_registry"] = [localize_policy(policy, lang) for policy in out["policy_registry"]]
+    out["source_policies"] = [localize_policy(policy, lang) for policy in out["source_policies"]]
+    out["clean_irrelevant_policies"] = [
+        localize_policy(policy, lang) for policy in out["clean_irrelevant_policies"]
+    ]
+    out["corruption_artifacts"] = [localize_policy(policy, lang) for policy in out["corruption_artifacts"]]
+    out["canonical_policy_registry"] = [
+        localize_policy(policy, lang) for policy in out["canonical_policy_registry"]
+    ]
+    out["noisy_policy_pool"] = [localize_policy(policy, lang) for policy in out["noisy_policy_pool"]]
+    out["carried_policy"] = [localize_policy(policy, lang) for policy in out["carried_policy"]]
     out["ground_truth_policies"] = [localize_policy(policy, lang) for policy in out["ground_truth_policies"]]
     return out
 
@@ -304,14 +325,16 @@ def write_review(path: Path, episodes: list[dict[str, Any]], tag: str) -> None:
         "- Main setting uses 30 irrelevant policies per episode.",
         "- Risky/safe ratio is 54/36.",
         "",
-        "| ID | Domain | State | Safe | Expected | Allowed | Pool | Required | Irrelevant | Request |",
-        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+        "| ID | Domain | State | Safe | Expected | Allowed | Canonical | Noisy | Carried | Required | Irrelevant | Request |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     for episode in episodes:
         lines.append(
             f"| {episode['episode_id']} | {episode['domain']} | {episode['policy_carriage_state']} | "
             f"{str(episode['is_safe_case']).lower()} | {episode['expected_decision']} | "
-            f"{', '.join(episode['allowed_decisions'])} | {episode['policy_pool_size']} | "
+            f"{', '.join(episode['allowed_decisions'])} | "
+            f"{len(episode['canonical_policy_registry'])} | {episode['noisy_policy_pool_size']} | "
+            f"{len(episode['carried_policy'])} | "
             f"{len(episode['required_policy_ids'])} | {len(episode['irrelevant_policy_ids'])} | "
             f"{episode['risky_request_en']} |"
         )

@@ -1,11 +1,17 @@
 from __future__ import annotations
 
+import copy
 import unittest
 from collections import Counter
 from pathlib import Path
 
-from safemem.agents.baselines import AllPolicyAgent, OracleMinimalAgent
-from safemem.agents.msr_agent import MsrAgent
+from safemem.agents.baselines import (
+    AllPolicyCleanAgent,
+    AllPolicyNoisyAgent,
+    CarriedPolicyAgent,
+    OracleMinimalAgent,
+)
+from safemem.agents.msr_agent import MsrAgent, MsrNoisyAgent
 from safemem.data import load_episodes
 from safemem.eval.judge import judge_result
 
@@ -43,23 +49,58 @@ class MvpTest(unittest.TestCase):
             },
         )
 
-    def test_all_policy_fails_on_corrupted_states(self) -> None:
+    def test_all_policy_clean_context_covers_required_policies(self) -> None:
         paths = [
             ROOT / "data" / "episodes" / "mvp_plus_90_en.jsonl",
             ROOT / "data" / "episodes" / "mvp_plus_90_zh.jsonl",
         ]
         for path in paths:
             for episode in load_episodes(path):
-                result = judge_result(episode, AllPolicyAgent().decide(episode))
-                state = episode.policy_carriage_state
-                if state == "policy_preserved":
-                    self.assertEqual(result.decision, episode.expected_decision, episode.episode_id)
-                elif state == "policy_over_included":
-                    if episode.is_safe_case:
-                        self.assertNotEqual(result.decision, episode.expected_decision, episode.episode_id)
-                else:
-                    if not episode.is_safe_case:
-                        self.assertNotEqual(result.decision, episode.expected_decision, episode.episode_id)
+                required_ids = set(episode.required_policy_ids())
+                if not required_ids:
+                    continue
+                result = judge_result(episode, AllPolicyCleanAgent().decide(episode))
+                canonical_ids = {policy.policy_id for policy in episode.canonical_policy_registry}
+                self.assertTrue(required_ids <= canonical_ids, episode.episode_id)
+                self.assertTrue(required_ids <= set(result.context_policy_ids), episode.episode_id)
+                self.assertEqual(result.policy_coverage, 1.0, episode.episode_id)
+                self.assertEqual(result.policy_source_used, "canonical_policy_registry")
+
+    def test_all_policy_noisy_context_covers_required_policies(self) -> None:
+        episodes = load_episodes(ROOT / "data" / "episodes" / "mvp_plus_90_en.jsonl")
+        for episode in episodes:
+            required_ids = set(episode.required_policy_ids())
+            if not required_ids:
+                continue
+            result = judge_result(episode, AllPolicyNoisyAgent().decide(episode))
+            noisy_ids = {policy.policy_id for policy in episode.noisy_policy_pool}
+            self.assertTrue(required_ids <= noisy_ids, episode.episode_id)
+            self.assertTrue(required_ids <= set(result.context_policy_ids), episode.episode_id)
+            self.assertEqual(result.policy_coverage, 1.0, episode.episode_id)
+            self.assertEqual(result.policy_source_used, "noisy_policy_pool")
+
+    def test_carried_policy_agent_uses_carried_policy_only(self) -> None:
+        episodes = load_episodes(ROOT / "data" / "episodes" / "mvp_plus_90_en.jsonl")
+        self.assertTrue(any(len(ep.noisy_policy_pool) != len(ep.carried_policy) for ep in episodes))
+        for episode in episodes:
+            result = judge_result(episode, CarriedPolicyAgent().decide(episode))
+            carried_ids = {policy.policy_id for policy in episode.carried_policy}
+            self.assertEqual(set(result.context_policy_ids), carried_ids, episode.episode_id)
+            self.assertFalse(set(episode.irrelevant_policy_ids) & carried_ids, episode.episode_id)
+            self.assertEqual(result.policy_source_used, "carried_policy")
+
+    def test_all_policy_clean_and_carried_policy_are_distinct(self) -> None:
+        episodes = load_episodes(ROOT / "data" / "episodes" / "mvp_plus_90_en.jsonl")
+        episode = next(
+            ep for ep in episodes
+            if ep.policy_carriage_state == "policy_absent" and ep.required_policy_ids()
+        )
+        all_policy = judge_result(episode, AllPolicyCleanAgent().decide(episode))
+        carried = judge_result(episode, CarriedPolicyAgent().decide(episode))
+        self.assertNotEqual(all_policy.context_policy_ids, carried.context_policy_ids, episode.episode_id)
+        self.assertEqual(all_policy.policy_coverage, 1.0, episode.episode_id)
+        self.assertEqual(carried.policy_coverage, 0.0, episode.episode_id)
+        self.assertGreater(all_policy.policy_token_cost, carried.policy_token_cost, episode.episode_id)
 
     def test_mvp_plus_template_schema(self) -> None:
         paths = [
@@ -69,7 +110,7 @@ class MvpTest(unittest.TestCase):
         for path in paths:
             episodes = load_episodes(path)
             self.assertEqual(len(episodes), 2)
-            self.assertEqual([episode.policy_pool_size for episode in episodes], [23, 23])
+            self.assertEqual([episode.policy_pool_size for episode in episodes], [26, 24])
             self.assertEqual(len(episodes[0].required_policy_ids()), 3)
             self.assertEqual(episodes[0].is_safe_case, False)
             self.assertEqual(episodes[1].required_policy_ids(), [])
@@ -106,40 +147,44 @@ class MvpTest(unittest.TestCase):
         self.assertEqual(Counter(episode.is_safe_case for episode in en), {False: 54, True: 36})
         self.assertTrue(all(episode.policy_pool_size >= 30 for episode in en))
 
-    def test_policy_registry_keeps_original_policy_text(self) -> None:
+    def test_canonical_registry_keeps_original_policy_text(self) -> None:
         episodes = load_episodes(ROOT / "data" / "episodes" / "mvp_plus_90_en.jsonl")
         for episode in episodes:
-            self.assertTrue(episode.policy_registry, episode.episode_id)
-            self.assertTrue(all(policy.text for policy in episode.policy_registry), episode.episode_id)
+            self.assertTrue(episode.canonical_policy_registry, episode.episode_id)
+            self.assertTrue(all(policy.text for policy in episode.canonical_policy_registry), episode.episode_id)
             self.assertTrue(all(policy.text for policy in episode.ground_truth_policies), episode.episode_id)
 
-    def test_corrupted_policies_do_not_reuse_required_ids(self) -> None:
+    def test_required_policies_remain_in_clean_and_noisy_pools(self) -> None:
         episodes = load_episodes(ROOT / "data" / "episodes" / "mvp_plus_90_en.jsonl")
         for episode in episodes:
             required_ids = set(episode.required_policy_ids())
-            pool_ids = {policy.policy_id for policy in episode.policy_pool}
-            registry_ids = {policy.policy_id for policy in episode.policy_registry}
-            self.assertTrue(required_ids <= registry_ids, episode.episode_id)
-            if episode.policy_carriage_state in {"policy_absent", "policy_weakened", "policy_misbound"}:
-                self.assertFalse(required_ids & pool_ids, episode.episode_id)
+            noisy_ids = {policy.policy_id for policy in episode.noisy_policy_pool}
+            canonical_ids = {policy.policy_id for policy in episode.canonical_policy_registry}
+            self.assertTrue(required_ids <= canonical_ids, episode.episode_id)
+            self.assertTrue(required_ids <= noisy_ids, episode.episode_id)
+            self.assertFalse(required_ids & set(episode.corrupted_policy_ids), episode.episode_id)
 
-    def test_msr_uses_only_carried_policy_pool(self) -> None:
+    def test_msr_clean_reads_only_canonical_registry(self) -> None:
         episodes = load_episodes(ROOT / "data" / "episodes" / "mvp_plus_90_en.jsonl")
-        corrupted_risky = [
-            ep for ep in episodes
-            if ep.policy_carriage_state in {"policy_absent", "policy_weakened", "policy_misbound"}
-            and not ep.is_safe_case
-        ]
-        self.assertTrue(corrupted_risky, "Expected corrupted risky cases")
-        for episode in corrupted_risky:
-            all_policy = judge_result(episode, AllPolicyAgent().decide(episode))
-            msr = judge_result(episode, MsrAgent().decide(episode))
-            required_ids = set(episode.required_policy_ids())
-            self.assertNotEqual(all_policy.decision, episode.expected_decision, episode.episode_id)
-            self.assertNotEqual(msr.decision, episode.expected_decision, episode.episode_id)
-            self.assertFalse(required_ids & set(msr.context_policy_ids), episode.episode_id)
+        episode = copy.deepcopy(next(ep for ep in episodes if ep.required_policy_ids()))
+        self.assertTrue(episode.canonical_policy_registry)
+        self.assertTrue(episode.noisy_policy_pool)
+        self.assertTrue(episode.ground_truth_policies)
+        episode.canonical_policy_registry = []
+        result = judge_result(episode, MsrAgent().decide(episode))
+        self.assertEqual(result.context_policy_ids, [], episode.episode_id)
+        self.assertEqual(result.policy_coverage, 0.0, episode.episode_id)
+        self.assertEqual(result.policy_source_used, "canonical_policy_registry")
 
-    def test_msr_reflects_over_included_carried_pool(self) -> None:
+    def test_msr_noisy_reads_noisy_policy_pool(self) -> None:
+        episodes = load_episodes(ROOT / "data" / "episodes" / "mvp_plus_90_en.jsonl")
+        episode = copy.deepcopy(next(ep for ep in episodes if ep.required_policy_ids()))
+        episode.canonical_policy_registry = []
+        result = judge_result(episode, MsrNoisyAgent().decide(episode))
+        self.assertNotEqual(result.context_policy_ids, [], episode.episode_id)
+        self.assertEqual(result.policy_source_used, "noisy_policy_pool")
+
+    def test_msr_clean_ignores_over_included_carried_policy(self) -> None:
         episodes = load_episodes(ROOT / "data" / "episodes" / "mvp_plus_90_en.jsonl")
         over_included_safe = [
             ep for ep in episodes
@@ -148,8 +193,8 @@ class MvpTest(unittest.TestCase):
         self.assertTrue(over_included_safe, "Expected over_included safe cases")
         for episode in over_included_safe:
             result = judge_result(episode, MsrAgent().decide(episode))
-            self.assertNotEqual(result.decision, "allow", episode.episode_id)
-            self.assertTrue(result.false_refusal, episode.episode_id)
+            self.assertEqual(result.decision, "allow", episode.episode_id)
+            self.assertFalse(result.false_refusal, episode.episode_id)
 
     def test_policy_pressure_groups(self) -> None:
         for count in [0, 10, 30, 50]:
@@ -158,10 +203,19 @@ class MvpTest(unittest.TestCase):
             )
             self.assertEqual(len(episodes), 90)
             for episode in episodes:
-                self.assertEqual(episode.policy_pool_size, len(episode.policy_pool), episode.episode_id)
-                self.assertGreaterEqual(len(episode.policy_registry), len(episode.initial_policy), episode.episode_id)
+                self.assertEqual(episode.policy_pool_size, len(episode.noisy_policy_pool), episode.episode_id)
+                self.assertGreaterEqual(
+                    len(episode.canonical_policy_registry),
+                    len(episode.initial_policy),
+                    episode.episode_id,
+                )
                 self.assertEqual(len(episode.irrelevant_policy_ids), count, episode.episode_id)
-                self.assertTrue(episode.policy_registry, episode.episode_id)
+                self.assertTrue(episode.canonical_policy_registry, episode.episode_id)
+                required_ids = set(episode.required_policy_ids())
+                noisy_ids = {policy.policy_id for policy in episode.noisy_policy_pool}
+                canonical_ids = {policy.policy_id for policy in episode.canonical_policy_registry}
+                self.assertTrue(required_ids <= noisy_ids, episode.episode_id)
+                self.assertTrue(required_ids <= canonical_ids, episode.episode_id)
                 self.assertEqual(
                     episode.policy_pool_corrupted,
                     episode.policy_carriage_state != "policy_preserved",

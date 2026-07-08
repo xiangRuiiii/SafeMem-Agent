@@ -10,7 +10,7 @@ class NoPolicyAgent(BaseAgent):
     name = "no_policy"
 
     def decide(self, episode: Episode) -> AgentResult:
-        return self.result(episode, "allow", notes="No policy context was provided.")
+        return self.result(episode, "allow", policy_source_used="none", notes="No policy context was provided.")
 
 
 class SummaryPolicyAgent(BaseAgent):
@@ -30,27 +30,29 @@ class SummaryPolicyAgent(BaseAgent):
             episode,
             decision,
             policy_context=episode.assembled_policy,
+            policy_source_used="assembled_policy",
             notes="Decision from compressed policy text.",
         )
 
 
-class AllPolicyAgent(BaseAgent):
-    name = "all_policy"
+class AllPolicyCleanAgent(BaseAgent):
+    name = "all_policy_clean"
 
     def decide(self, episode: Episode) -> AgentResult:
-        policies = PolicyStore.from_episode(episode).all()
+        policies = list(episode.canonical_policy_registry)
         decision, policy_ids = check_action(episode.candidate_action, policies)
         return self.result(
             episode,
             decision,
             policy_ids=policy_ids,
             policy_context=[policy.to_dict() for policy in policies],
-            notes="All active policies were replayed.",
+            policy_source_used="canonical_policy_registry",
+            notes="All canonical policies were replayed.",
         )
 
 
-class ExactReplayAgent(BaseAgent):
-    name = "exact_active_replay"
+class AllPolicyNoisyAgent(BaseAgent):
+    name = "all_policy_noisy"
 
     def decide(self, episode: Episode) -> AgentResult:
         policies = PolicyStore.from_episode(episode).all()
@@ -60,7 +62,24 @@ class ExactReplayAgent(BaseAgent):
             decision,
             policy_ids=policy_ids,
             policy_context=[policy.to_dict() for policy in policies],
-            notes="Exact active policy replay plus preflight.",
+            policy_source_used="noisy_policy_pool",
+            notes="All noisy candidate policies were replayed.",
+        )
+
+
+class CarriedPolicyAgent(BaseAgent):
+    name = "carried_policy"
+
+    def decide(self, episode: Episode) -> AgentResult:
+        policies = list(episode.carried_policy)
+        decision, policy_ids = check_action(episode.candidate_action, policies)
+        return self.result(
+            episode,
+            decision,
+            policy_ids=policy_ids,
+            policy_context=[policy.to_dict() for policy in policies],
+            policy_source_used="carried_policy",
+            notes="Exact replay of carried active policies plus preflight.",
         )
 
 
@@ -68,7 +87,7 @@ class OracleMinimalAgent(BaseAgent):
     name = "oracle_minimal"
 
     def decide(self, episode: Episode) -> AgentResult:
-        ground_truth = episode.ground_truth_policies or episode.policy_pool or episode.initial_policy
+        ground_truth = episode.ground_truth_policies
         by_id = {policy.policy_id: policy for policy in ground_truth}
         required_ids = episode.required_policy_ids()
         policies = [by_id[policy_id] for policy_id in required_ids if policy_id in by_id]
@@ -79,8 +98,13 @@ class OracleMinimalAgent(BaseAgent):
             policy_ids=policy_ids,
             context_policy_ids=[policy.policy_id for policy in policies],
             policy_context=[policy.to_dict() for policy in policies],
-            notes="Oracle uses ground_truth_policies, bypassing policy_pool corruption.",
+            policy_source_used="ground_truth_policies",
+            notes="Oracle uses only ground_truth_policies.",
         )
+
+
+AllPolicyAgent = AllPolicyCleanAgent
+ExactReplayAgent = CarriedPolicyAgent
 
 
 def _has_any(text: str, terms: list[str]) -> bool:

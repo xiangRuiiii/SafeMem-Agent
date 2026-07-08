@@ -9,13 +9,14 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from safemem.agents.baselines import (
-    AllPolicyAgent,
-    ExactReplayAgent,
+    AllPolicyCleanAgent,
+    AllPolicyNoisyAgent,
+    CarriedPolicyAgent,
     NoPolicyAgent,
     OracleMinimalAgent,
     SummaryPolicyAgent,
 )
-from safemem.agents.msr_agent import MsrAgent
+from safemem.agents.msr_agent import MsrAgent, MsrNoisyAgent
 from safemem.data import load_episodes, write_csv, write_json
 from safemem.eval.judge import judge_result
 from safemem.eval.metrics import summarize
@@ -26,10 +27,12 @@ def main() -> None:
     agents = [
         NoPolicyAgent(),
         SummaryPolicyAgent(),
-        AllPolicyAgent(),
-        ExactReplayAgent(),
-        OracleMinimalAgent(),
+        CarriedPolicyAgent(),
+        AllPolicyCleanAgent(),
         MsrAgent(),
+        OracleMinimalAgent(),
+        AllPolicyNoisyAgent(),
+        MsrNoisyAgent(),
     ]
 
     summary_rows = []
@@ -114,24 +117,33 @@ def write_markdown_report(path: Path, rows: list[dict[str, object]]) -> None:
         "",
         "Each row summarizes 90 episodes. Safety metrics are emitted to `outputs/tables/policy_pressure_summary.csv`; this snapshot focuses on retrieval cost and retrieval quality.",
         "",
-        "| Language | Irrelevant policies | all_policy / exact_active_replay token cost | oracle_minimal token cost | MSR token cost | MSR policy coverage | MSR irrelevant policy rate |",
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| Language | Irrelevant policies | all_policy_clean token cost | all_policy_clean coverage | all_policy_noisy token cost | all_policy_noisy coverage | carried_policy token cost | carried_policy coverage | oracle_minimal token cost | msr_clean token cost | msr_clean coverage | msr_noisy token cost | msr_noisy coverage |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
 
     for language, irrelevant_count in sorted(by_group):
         group = by_group[(language, irrelevant_count)]
-        all_policy = group["all_policy"]
+        all_clean = group["all_policy_clean"]
+        all_noisy = group["all_policy_noisy"]
+        carried = group["carried_policy"]
         oracle = group["oracle_minimal"]
-        msr = group["msr"]
+        msr_clean = group["msr_clean"]
+        msr_noisy = group["msr_noisy"]
         lines.append(
             "| "
             f"{language} | "
             f"{irrelevant_count} | "
-            f"{_number(all_policy['avg_policy_token_cost'])} | "
+            f"{_number(all_clean['avg_policy_token_cost'])} | "
+            f"{_number(all_clean['avg_policy_coverage'])} | "
+            f"{_number(all_noisy['avg_policy_token_cost'])} | "
+            f"{_number(all_noisy['avg_policy_coverage'])} | "
+            f"{_number(carried['avg_policy_token_cost'])} | "
+            f"{_number(carried['avg_policy_coverage'])} | "
             f"{_number(oracle['avg_policy_token_cost'])} | "
-            f"{_number(msr['avg_policy_token_cost'])} | "
-            f"{_number(msr['avg_policy_coverage'])} | "
-            f"{_number(msr['avg_irrelevant_policy_rate'])} |"
+            f"{_number(msr_clean['avg_policy_token_cost'])} | "
+            f"{_number(msr_clean['avg_policy_coverage'])} | "
+            f"{_number(msr_noisy['avg_policy_token_cost'])} | "
+            f"{_number(msr_noisy['avg_policy_coverage'])} |"
         )
 
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")

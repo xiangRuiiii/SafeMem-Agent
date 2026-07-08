@@ -74,7 +74,13 @@ class Episode:
     domain: str
     task_goal: str
     initial_policy: list[Policy]
-    policy_pool: list[Policy]
+    source_policies: list[Policy]
+    clean_irrelevant_policies: list[Policy]
+    corruption_artifacts: list[Policy]
+    canonical_policy_registry: list[Policy]
+    noisy_policy_pool: list[Policy]
+    carried_policy: list[Policy]
+    ground_truth_policies: list[Policy]
     long_context: list[str]
     policy_carriage_state: str
     assembled_policy: list[str]
@@ -91,23 +97,32 @@ class Episode:
     allowed_decisions: list[str] = field(default_factory=list)
     forbidden_decisions: list[str] = field(default_factory=list)
     risk_level: str = ""
-    policy_registry: list[Policy] = field(default_factory=list)
-    ground_truth_policies: list[Policy] = field(default_factory=list)
+    msr_policy_source: str = "canonical_policy_registry"
     policy_pool_corrupted: bool = False
     corrupted_policy_ids: list[str] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Episode":
         initial_policy = [Policy.from_dict(item) for item in data.get("initial_policy", [])]
-        policy_pool = [Policy.from_dict(item) for item in data.get("policy_pool", [])]
-        if "policy_pool" not in data:
-            policy_pool = list(initial_policy)
-        policy_registry = [Policy.from_dict(item) for item in data.get("policy_registry", [])]
-        if "policy_registry" not in data:
-            policy_registry = list(policy_pool)
+        source_policies = _policies_from(data, "source_policies", initial_policy)
+        clean_irrelevant_policies = _policies_from(data, "clean_irrelevant_policies", [])
+        corruption_artifacts = _policies_from(data, "corruption_artifacts", [])
+        canonical_policy_registry = _policies_from(
+            data,
+            "canonical_policy_registry",
+            _policies_from(data, "policy_registry", source_policies + clean_irrelevant_policies),
+        )
+        noisy_policy_pool = _policies_from(
+            data,
+            "noisy_policy_pool",
+            _policies_from(data, "policy_pool", canonical_policy_registry + corruption_artifacts),
+        )
+        carried_policy = [Policy.from_dict(item) for item in data.get("carried_policy", [])]
+        if "carried_policy" not in data:
+            carried_policy = _default_carried_policy(data, initial_policy, noisy_policy_pool)
         ground_truth_policies = [Policy.from_dict(item) for item in data.get("ground_truth_policies", [])]
         if "ground_truth_policies" not in data:
-            ground_truth_policies = list(policy_registry)
+            ground_truth_policies = []
         required_policy_ids = list(
             data.get("required_policy_ids", data.get("labels", {}).get("required_policy_ids", []))
         )
@@ -116,7 +131,13 @@ class Episode:
             domain=data["domain"],
             task_goal=data.get("task_goal", ""),
             initial_policy=initial_policy,
-            policy_pool=policy_pool,
+            source_policies=source_policies,
+            clean_irrelevant_policies=clean_irrelevant_policies,
+            corruption_artifacts=corruption_artifacts,
+            canonical_policy_registry=canonical_policy_registry,
+            noisy_policy_pool=noisy_policy_pool,
+            carried_policy=carried_policy,
+            ground_truth_policies=ground_truth_policies,
             long_context=list(data.get("long_context", [])),
             policy_carriage_state=data.get("policy_carriage_state", ""),
             assembled_policy=list(data.get("assembled_policy", [])),
@@ -127,14 +148,13 @@ class Episode:
             labels=dict(data.get("labels", {})),
             required_policy_ids_value=required_policy_ids,
             irrelevant_policy_ids=list(data.get("irrelevant_policy_ids", [])),
-            policy_pool_size=int(data.get("policy_pool_size", len(policy_pool))),
+            policy_pool_size=int(data.get("noisy_policy_pool_size", data.get("policy_pool_size", len(noisy_policy_pool)))),
             policy_failure_type=data.get("policy_failure_type", data.get("labels", {}).get("policy_failure_type", "")),
             is_safe_case=bool(data.get("is_safe_case", not data.get("unsafe_if_executed", False))),
             allowed_decisions=list(data.get("allowed_decisions", [])),
             forbidden_decisions=list(data.get("forbidden_decisions", [])),
             risk_level=data.get("risk_level", ""),
-            policy_registry=policy_registry,
-            ground_truth_policies=ground_truth_policies,
+            msr_policy_source=data.get("msr_policy_source", "canonical_policy_registry"),
             policy_pool_corrupted=bool(data.get("policy_pool_corrupted", False)),
             corrupted_policy_ids=list(data.get("corrupted_policy_ids", [])),
         )
@@ -144,6 +164,38 @@ class Episode:
             return list(self.required_policy_ids_value)
         return list(self.labels.get("required_policy_ids", []))
 
+    @property
+    def policy_pool(self) -> list[Policy]:
+        return self.noisy_policy_pool
+
+    @property
+    def policy_registry(self) -> list[Policy]:
+        return self.canonical_policy_registry
+
+
+def _policies_from(
+    data: dict[str, Any],
+    key: str,
+    fallback: list[Policy],
+) -> list[Policy]:
+    if key not in data:
+        return list(fallback)
+    return [Policy.from_dict(item) for item in data.get(key, [])]
+
+
+def _default_carried_policy(
+    data: dict[str, Any],
+    initial_policy: list[Policy],
+    policy_pool: list[Policy],
+) -> list[Policy]:
+    state = data.get("policy_carriage_state", "")
+    if state == "policy_preserved":
+        return list(initial_policy)
+    corrupted_ids = set(data.get("corrupted_policy_ids", []))
+    if corrupted_ids:
+        return [policy for policy in policy_pool if policy.policy_id in corrupted_ids]
+    return []
+
 
 @dataclass
 class AgentResult:
@@ -152,6 +204,7 @@ class AgentResult:
     decision: Decision
     policy_ids: list[str] = field(default_factory=list)
     context_policy_ids: list[str] = field(default_factory=list)
+    policy_source_used: str = ""
     policy_token_cost: int = 0
     notes: str = ""
     executed: bool = False
@@ -170,6 +223,7 @@ class AgentResult:
             "decision": self.decision,
             "policy_ids": self.policy_ids,
             "context_policy_ids": self.context_policy_ids,
+            "policy_source_used": self.policy_source_used,
             "policy_token_cost": self.policy_token_cost,
             "notes": self.notes,
             "executed": self.executed,

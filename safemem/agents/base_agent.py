@@ -20,6 +20,7 @@ class BaseAgent:
         policy_ids: list[str] | None = None,
         context_policy_ids: list[str] | None = None,
         policy_context: Any = None,
+        policy_source_used: str = "",
         notes: str = "",
     ) -> AgentResult:
         if context_policy_ids is None:
@@ -30,6 +31,7 @@ class BaseAgent:
             decision=decision,
             policy_ids=policy_ids or [],
             context_policy_ids=context_policy_ids,
+            policy_source_used=policy_source_used,
             policy_token_cost=count_tokens(policy_context),
             notes=notes,
         )
