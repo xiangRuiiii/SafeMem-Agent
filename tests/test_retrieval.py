@@ -18,6 +18,8 @@ class RetrievalTest(unittest.TestCase):
             "bm25_noisy_top3",
             "embedding_clean_top3",
             "embedding_noisy_top3",
+            "hybrid_msr_clean",
+            "hybrid_msr_noisy",
         }
         self.assertTrue(expected <= set(LLM_METHOD_GROUPS))
 
@@ -46,6 +48,16 @@ class RetrievalTest(unittest.TestCase):
         self.assertEqual(embedding_context.source, "noisy_policy_pool")
         self.assertEqual(len(bm25_context.policies), 5)
         self.assertEqual(len(embedding_context.policies), 5)
+
+    def test_hybrid_msr_uses_expected_sources(self) -> None:
+        episode = load_episodes(ROOT / "data" / "episodes" / "mvp_plus_90_en.jsonl")[0]
+        clean_context = policy_context_for_method(episode, "hybrid_msr_clean")
+        noisy_context = policy_context_for_method(episode, "hybrid_msr_noisy")
+
+        self.assertEqual(clean_context.source, "canonical_policy_registry")
+        self.assertEqual(noisy_context.source, "noisy_policy_pool")
+        self.assertLessEqual(len(clean_context.policies), 4)
+        self.assertLessEqual(len(noisy_context.policies), 4)
 
 
 if __name__ == "__main__":

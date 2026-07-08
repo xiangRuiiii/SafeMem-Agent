@@ -109,7 +109,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--method-set",
         default="",
-        choices=["base", "retrieval_top3", "retrieval_all", "comparison_all"],
+        choices=["base", "retrieval_top3", "retrieval_all", "hybrid", "comparison_all"],
         help="Named method set. Overrides --methods when set.",
     )
     parser.add_argument("--episode-ids", default="", help="Optional comma-separated episode IDs to run.")
@@ -151,6 +151,15 @@ def methods_for_set(name: str) -> list[str]:
         ]
     if name == "retrieval_all":
         return [method for method in LLM_COMPARISON_METHODS if method.startswith(("bm25_", "embedding_"))]
+    if name == "hybrid":
+        return [
+            "embedding_noisy_top3",
+            "msr_noisy",
+            "hybrid_msr_noisy",
+            "embedding_clean_top3",
+            "msr_clean",
+            "hybrid_msr_clean",
+        ]
     if name == "comparison_all":
         return list(LLM_COMPARISON_METHODS)
     raise SystemExit(f"Unsupported method set: {name}")

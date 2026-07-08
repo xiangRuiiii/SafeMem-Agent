@@ -12,6 +12,8 @@ This experiment compares MSR with lexical and vector retrieval baselines before 
 | `embedding_noisy_top1/3/5` | `noisy_policy_pool` | 1/3/5 | local vector retrieval from the noisy policy pool |
 | `msr_clean` | `canonical_policy_registry` | adaptive | action-applicability retrieval |
 | `msr_noisy` | `noisy_policy_pool` | adaptive | action-applicability retrieval from noisy pool |
+| `hybrid_msr_clean` | `canonical_policy_registry` | recall5+filter | embedding top-5 recall plus MSR applicability filter |
+| `hybrid_msr_noisy` | `noisy_policy_pool` | recall5+filter | embedding top-5 recall plus MSR applicability filter and over-inclusion penalty |
 | `oracle_minimal` | `ground_truth_policies` | minimal | oracle upper bound |
 
 The current embedding baseline is a deterministic local hash-vector retriever with metadata-rich action and policy texts. It does not call an embedding API.
@@ -45,6 +47,22 @@ python experiments\run_retrieval_eval.py `
   --method-set retrieval_all
 ```
 
+Use this output for the top-k curve:
+
+```text
+BM25 top-1 / top-3 / top-5
+Embedding top-1 / top-3 / top-5
+```
+
+Run Hybrid-MSR retrieval comparison:
+
+```powershell
+python experiments\run_retrieval_eval.py `
+  --episodes data\episodes\mvp_plus_90_en.jsonl `
+  --tag retrieval_en_90_hybrid `
+  --method-set hybrid
+```
+
 ## LLM Decision With Retrieval
 
 First run only top-3 retrieval baselines:
@@ -65,6 +83,26 @@ Then inspect:
 Get-Content outputs\tables\llm_en_90_retrieval_top3_llm_summary.csv
 Get-Content outputs\tables\llm_en_90_retrieval_top3_llm_by_state.csv
 Get-Content outputs\tables\llm_en_90_retrieval_top3_llm_by_case.csv
+```
+
+Run Hybrid-MSR LLM comparison:
+
+```powershell
+python experiments\run_llm_eval.py `
+  --episodes data\episodes\mvp_plus_90_en.jsonl `
+  --tag llm_en_90_hybrid `
+  --method-set hybrid `
+  --profile deepseek `
+  --run `
+  --resume
+```
+
+The core noisy comparison is:
+
+```text
+embedding_noisy_top3
+msr_noisy
+hybrid_msr_noisy
 ```
 
 The paper contrast is:

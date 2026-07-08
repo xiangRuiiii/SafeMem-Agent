@@ -27,6 +27,8 @@ DEFAULT_METHODS = [
     "embedding_noisy_top3",
     "msr_clean",
     "msr_noisy",
+    "hybrid_msr_clean",
+    "hybrid_msr_noisy",
     "oracle_minimal",
 ]
 
@@ -73,7 +75,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--method-set",
         default="",
-        choices=["retrieval_top3", "retrieval_all"],
+        choices=["retrieval_top3", "retrieval_all", "hybrid"],
         help="Named retrieval method set. Overrides --methods when set.",
     )
     parser.add_argument("--episode-ids", default="", help="Optional comma-separated episode IDs to run.")
@@ -96,6 +98,16 @@ def methods_for_set(name: str) -> list[str]:
                     methods.append(f"{family}_{source}_top{top_k}")
         methods.extend(["msr_clean", "msr_noisy", "oracle_minimal"])
         return methods
+    if name == "hybrid":
+        return [
+            "embedding_noisy_top3",
+            "msr_noisy",
+            "hybrid_msr_noisy",
+            "embedding_clean_top3",
+            "msr_clean",
+            "hybrid_msr_clean",
+            "oracle_minimal",
+        ]
     raise SystemExit(f"Unsupported method set: {name}")
 
 
@@ -134,6 +146,8 @@ def top_k_for_method(method: str) -> str:
         spec = parse_topk_method(method, family)
         if spec:
             return str(spec[1])
+    if method.startswith("hybrid_msr_"):
+        return "recall5+filter"
     if method.startswith("msr_"):
         return "adaptive"
     if method == "oracle_minimal":

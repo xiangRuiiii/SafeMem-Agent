@@ -8,6 +8,7 @@ from safemem.agents.base_agent import BaseAgent
 from safemem.llm_client import ChatClient
 from safemem.models import AgentResult, Decision, Episode, Policy
 from safemem.policy.bm25 import BM25Retriever
+from safemem.policy.hybrid import HybridMsrRetriever
 from safemem.policy.retriever import PolicyRetriever
 from safemem.policy.vector import VectorRetriever
 
@@ -26,6 +27,7 @@ for _source in ("clean", "noisy"):
     for _top_k in (1, 3, 5):
         LLM_METHOD_GROUPS[f"bm25_{_source}_top{_top_k}"] = f"BM25 {_source} top-{_top_k}"
         LLM_METHOD_GROUPS[f"embedding_{_source}_top{_top_k}"] = f"Embedding {_source} top-{_top_k}"
+    LLM_METHOD_GROUPS[f"hybrid_msr_{_source}"] = f"Hybrid-MSR {_source}"
 
 LLM_BASE_METHODS = [
     "no_policy",
@@ -39,7 +41,7 @@ LLM_BASE_METHODS = [
 LLM_RETRIEVAL_METHODS = [
     method
     for method in LLM_METHOD_GROUPS
-    if method.startswith(("bm25_", "embedding_"))
+    if method.startswith(("bm25_", "embedding_", "hybrid_msr_"))
 ]
 LLM_FULL_METHODS = list(LLM_BASE_METHODS)
 LLM_COMPARISON_METHODS = LLM_BASE_METHODS + LLM_RETRIEVAL_METHODS
@@ -155,6 +157,11 @@ def policy_context_for_method(
         policies = policies_for_source(episode, source)
         selected = VectorRetriever(top_k=top_k).select(episode.candidate_action, policies)
         return LlmPolicyContext(method, policy_source_name(source), selected)
+    hybrid_source = parse_hybrid_method(method)
+    if hybrid_source:
+        policies = policies_for_source(episode, hybrid_source)
+        selected = HybridMsrRetriever().select(episode.candidate_action, policies)
+        return LlmPolicyContext(method, policy_source_name(hybrid_source), selected)
     if method == "oracle_minimal":
         by_id = {policy.policy_id: policy for policy in episode.ground_truth_policies}
         policies = [by_id[policy_id] for policy_id in episode.required_policy_ids() if policy_id in by_id]
@@ -170,6 +177,13 @@ def parse_topk_method(method: str, family: str) -> tuple[str, int] | None:
             if value.isdigit():
                 return source, int(value)
     return None
+
+
+def parse_hybrid_method(method: str) -> str:
+    for source in ("clean", "noisy"):
+        if method == f"hybrid_msr_{source}":
+            return source
+    return ""
 
 
 def policies_for_source(episode: Episode, source: str) -> list[Policy]:
