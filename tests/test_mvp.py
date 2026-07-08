@@ -164,6 +164,21 @@ class MvpTest(unittest.TestCase):
             self.assertTrue(required_ids <= noisy_ids, episode.episode_id)
             self.assertFalse(required_ids & set(episode.corrupted_policy_ids), episode.episode_id)
 
+    def test_private_roadmap_actions_mark_confidential_sensitivity(self) -> None:
+        target_ids = {
+            "file_008_absent_share_private_roadmap",
+            "file_015_weakened_share_private_roadmap",
+            "file_022_misbound_share_private_roadmap",
+        }
+        for path in [
+            ROOT / "data" / "episodes" / "mvp_plus_90_en.jsonl",
+            ROOT / "data" / "episodes" / "mvp_plus_90_zh.jsonl",
+        ]:
+            episodes = {episode.episode_id: episode for episode in load_episodes(path)}
+            for episode_id in target_ids:
+                arguments = episodes[episode_id].candidate_action.arguments
+                self.assertEqual(arguments.get("file_sensitivity"), "confidential", episode_id)
+
     def test_msr_clean_reads_only_canonical_registry(self) -> None:
         episodes = load_episodes(ROOT / "data" / "episodes" / "mvp_plus_90_en.jsonl")
         episode = copy.deepcopy(next(ep for ep in episodes if ep.required_policy_ids()))

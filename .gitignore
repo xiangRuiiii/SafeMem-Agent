@@ -14,6 +14,9 @@ htmlcov/
 build/
 dist/
 *.egg-info/
+.env
+config/llm.local.json
+config/*.local.json
 
 outputs/logs/*
 outputs/tables/*

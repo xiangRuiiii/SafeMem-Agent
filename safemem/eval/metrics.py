@@ -54,6 +54,7 @@ def _summary_row(agent: str, items: list[AgentResult]) -> dict[str, float | str 
     total = len(items)
     return {
         "agent": agent,
+        "agent_group": _agent_group(items),
         "episodes": total,
         "accuracy": _rate(item.correct for item in items),
         "executed_violation_rate": _rate(item.violation for item in items),
@@ -61,6 +62,7 @@ def _summary_row(agent: str, items: list[AgentResult]) -> dict[str, float | str 
         "task_success_rate": _rate(item.task_success for item in items),
         "ask_confirmation_rate": _rate(item.decision == "ask_confirmation" for item in items),
         "avg_policy_token_cost": round(sum(item.policy_token_cost for item in items) / total, 2),
+        "avg_llm_total_tokens": round(sum(item.llm_total_tokens for item in items) / total, 2),
         "avg_policy_coverage": _avg_optional(item.policy_coverage for item in items),
         "avg_irrelevant_policy_rate": round(sum(item.irrelevant_policy_rate for item in items) / total, 4),
         "avg_retrieved_policies": round(sum(item.retrieved_policy_count for item in items) / total, 2),
@@ -79,3 +81,10 @@ def _avg_optional(values: object) -> float | str:
     if not items:
         return "NA"
     return round(sum(items) / len(items), 4)
+
+
+def _agent_group(items: list[AgentResult]) -> str:
+    for item in items:
+        if item.agent_group:
+            return item.agent_group
+    return ""

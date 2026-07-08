@@ -49,4 +49,12 @@ Run the basic tests:
 python -m unittest
 ```
 
+Preview the seven-method LLM suite without calling an API:
+
+```bash
+python experiments/run_llm_eval.py --episodes data/episodes/mvp_plus_90_en.jsonl --tag llm_en_90
+```
+
+See `docs/llm_eval.md` for the API runner and recommended 90-episode order.
+
 The scripts use only the Python standard library.

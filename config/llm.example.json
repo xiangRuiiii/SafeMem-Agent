@@ -1,0 +1,10 @@
+{
+  "default_profile": "deepseek",
+  "profiles": {
+    "deepseek": {
+      "base_url": "https://api.deepseek.com",
+      "model": "deepseek-chat",
+      "api_key": "YOUR_DEEPSEEK_API_KEY"
+    }
+  }
+}

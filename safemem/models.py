@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from typing import Any, Literal
 
 Decision = Literal["allow", "block", "ask_confirmation", "revise"]
@@ -202,10 +202,15 @@ class AgentResult:
     episode_id: str
     agent: str
     decision: Decision
+    agent_group: str = ""
     policy_ids: list[str] = field(default_factory=list)
     context_policy_ids: list[str] = field(default_factory=list)
     policy_source_used: str = ""
     policy_token_cost: int = 0
+    llm_model: str = ""
+    llm_prompt_tokens: int = 0
+    llm_completion_tokens: int = 0
+    llm_total_tokens: int = 0
     notes: str = ""
     executed: bool = False
     violation: bool = False
@@ -216,15 +221,26 @@ class AgentResult:
     irrelevant_policy_rate: float = 0.0
     retrieved_policy_count: int = 0
 
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "AgentResult":
+        names = {item.name for item in fields(cls)}
+        values = {key: value for key, value in data.items() if key in names}
+        return cls(**values)
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "episode_id": self.episode_id,
             "agent": self.agent,
+            "agent_group": self.agent_group,
             "decision": self.decision,
             "policy_ids": self.policy_ids,
             "context_policy_ids": self.context_policy_ids,
             "policy_source_used": self.policy_source_used,
             "policy_token_cost": self.policy_token_cost,
+            "llm_model": self.llm_model,
+            "llm_prompt_tokens": self.llm_prompt_tokens,
+            "llm_completion_tokens": self.llm_completion_tokens,
+            "llm_total_tokens": self.llm_total_tokens,
             "notes": self.notes,
             "executed": self.executed,
             "violation": self.violation,

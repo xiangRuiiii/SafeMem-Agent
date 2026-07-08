@@ -20,6 +20,7 @@ class BaseAgent:
         policy_ids: list[str] | None = None,
         context_policy_ids: list[str] | None = None,
         policy_context: Any = None,
+        agent_group: str = "",
         policy_source_used: str = "",
         notes: str = "",
     ) -> AgentResult:
@@ -29,6 +30,7 @@ class BaseAgent:
             episode_id=episode.episode_id,
             agent=self.name,
             decision=decision,
+            agent_group=agent_group,
             policy_ids=policy_ids or [],
             context_policy_ids=context_policy_ids,
             policy_source_used=policy_source_used,

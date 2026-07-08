@@ -42,7 +42,14 @@ def object_matches(policy: Policy, action: Action) -> bool:
         return str(args.get("path", "")).startswith("/public")
     if target == "confidential_path":
         path = str(args.get("path", "")).lower()
-        return path.startswith("/confidential") or "finance" in path or "roadmap" in path or "staff" in path
+        sensitivity = str(args.get("file_sensitivity", "")).lower()
+        return (
+            sensitivity == "confidential"
+            or path.startswith("/confidential")
+            or "finance" in path
+            or "roadmap" in path
+            or "staff" in path
+        )
     if target == "private_path":
         return str(args.get("path", "")).startswith("/private")
     if target == "private_calendar":
