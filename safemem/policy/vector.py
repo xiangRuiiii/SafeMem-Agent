@@ -1,3 +1,5 @@
+"""SafeMem 回归测试模块。"""
+
 from __future__ import annotations
 
 import hashlib
@@ -20,10 +22,18 @@ SYNONYMS = {
     "confirm": ["confirmation", "approval"],
     "share": ["send", "transfer"],
     "delete": ["remove"],
+    "slack": ["message", "channel", "workspace"],
+    "database": ["table", "record", "query"],
+    "browser": ["web", "site", "form"],
+    "credentials": ["secret", "token"],
+    "token": ["secret", "credentials"],
+    "pii": ["private", "sensitive"],
+    "payment": ["approval", "confirm"],
 }
 
 
-class VectorRetriever:
+class HashVectorRetriever:
+    """基于哈希词袋和人工同义词的 legacy 向量基线，不是外部 dense embedding。"""
     def __init__(self, top_k: int = 3, dimensions: int = 512) -> None:
         self.top_k = top_k
         self.dimensions = dimensions
@@ -70,3 +80,7 @@ def cosine(left: dict[int, float], right: dict[int, float]) -> float:
     if len(left) > len(right):
         left, right = right, left
     return sum(value * right.get(index, 0.0) for index, value in left.items())
+
+
+# 保留旧类名，确保历史实验脚本和结果读取代码继续可用。
+VectorRetriever = HashVectorRetriever

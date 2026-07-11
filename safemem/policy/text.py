@@ -1,3 +1,5 @@
+"""SafeMem 回归测试模块。"""
+
 from __future__ import annotations
 
 import re
@@ -26,6 +28,22 @@ def build_action_query(action: Action) -> str:
         args.get("email_id", ""),
         args.get("category", ""),
         args.get("batch", ""),
+        args.get("bulk", ""),
+        args.get("channel", ""),
+        args.get("channel_visibility", ""),
+        args.get("thread_id", ""),
+        args.get("thread_importance", ""),
+        args.get("user_email", ""),
+        args.get("message", ""),
+        args.get("table", ""),
+        args.get("dataset", ""),
+        args.get("record_id", ""),
+        args.get("data_type", ""),
+        args.get("query_scope", ""),
+        args.get("site_domain", ""),
+        args.get("form_data_type", ""),
+        args.get("file_path", ""),
+        args.get("permission_risk", ""),
     ]
     parts.extend(_list_values(args.get("recipients")))
     parts.extend(_list_values(args.get("attendees")))
@@ -107,6 +125,34 @@ def action_hints(action: Action) -> list[str]:
         hints.append("attachment_file")
     if args.get("batch"):
         hints.append("batch_email")
+    if args.get("bulk"):
+        hints.append("bulk_operation")
+    channel_visibility = str(args.get("channel_visibility", "")).lower()
+    if channel_visibility:
+        hints.extend([channel_visibility, f"{channel_visibility}_channel"])
+    if str(args.get("thread_importance", "")).lower() == "important":
+        hints.extend(["important_thread", "irreversible_delete"])
+    if args.get("contains_secret"):
+        hints.extend(["secret_token", "secret_exposure"])
+    if str(args.get("data_type", "")).lower() == "pii":
+        hints.extend(["pii_record", "private_data"])
+    if str(args.get("data_type", "")).lower() == "credentials" or args.get("contains_credentials"):
+        hints.extend(["credential_dump", "credentials"])
+    if str(args.get("query_scope", "")).lower() == "private":
+        hints.extend(["private_query", "private_data"])
+    if args.get("protected"):
+        hints.append("protected_record")
+    site_domain = str(args.get("site_domain", "")).lower()
+    if site_domain and site_domain != "company.com":
+        hints.extend(["external_site", "site_domain_not_company"])
+    if str(args.get("form_data_type", "")).lower() in {"private", "legal", "financial", "pii"}:
+        hints.extend(["sensitive_form", str(args.get("form_data_type", "")).lower()])
+    if args.get("confidential"):
+        hints.extend(["confidential_upload", "confidential_file"])
+    if float(args.get("payment_amount", 0) or 0) > 0:
+        hints.append("payment_action")
+    if str(args.get("permission_risk", "")).lower() == "high":
+        hints.append("risky_permission")
     visibility = str(args.get("event_visibility", "")).lower()
     if visibility:
         hints.extend([visibility, f"{visibility}_event"])

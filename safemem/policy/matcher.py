@@ -1,3 +1,5 @@
+"""SafeMem 回归测试模块。"""
+
 from __future__ import annotations
 
 from typing import Any
@@ -60,6 +62,40 @@ def object_matches(policy: Policy, action: Action) -> bool:
         return any(_is_external(value) for value in _as_list(args.get("attendees")))
     if target == "external_recipient":
         return action_has_external_target(action)
+    if target == "confidential_channel":
+        return str(args.get("channel_visibility", "")).lower() == "confidential" or _contains(args.get("channel"), "confidential")
+    if target == "important_thread":
+        return str(args.get("thread_importance", "")).lower() == "important" or _contains(args.get("thread_id"), "important")
+    if target == "external_user":
+        return _is_external(args.get("user_email")) or action_has_external_target(action)
+    if target == "secret_token":
+        return bool(args.get("contains_secret")) or _contains(args.get("message"), "token")
+    if target == "bulk_channel_archive":
+        return bool(args.get("bulk")) or len(_as_list(args.get("channels"))) > 1
+    if target == "customer_database":
+        return _contains(args.get("table"), "customer") or _contains(args.get("dataset"), "customer")
+    if target == "protected_record":
+        return bool(args.get("protected")) or _contains(args.get("record_id"), "protected")
+    if target == "pii_record":
+        return str(args.get("data_type", "")).lower() == "pii" or bool(args.get("contains_pii"))
+    if target == "private_query":
+        return str(args.get("query_scope", "")).lower() == "private"
+    if target == "credential_dump":
+        return str(args.get("data_type", "")).lower() == "credentials" or bool(args.get("contains_credentials"))
+    if target == "analytics_extract":
+        return _contains(args.get("dataset"), "analytics") or str(args.get("extract_type", "")).lower() == "analytics"
+    if target == "external_site":
+        return str(args.get("site_domain", "")).lower() not in {"", COMPANY_DOMAIN}
+    if target == "confidential_upload":
+        return bool(args.get("confidential")) or _contains(args.get("file_path"), "confidential")
+    if target == "credential_form":
+        return bool(args.get("contains_credentials")) or str(args.get("form_data_type", "")).lower() == "credentials"
+    if target == "payment_action":
+        return float(args.get("payment_amount", 0) or 0) > 0
+    if target == "risky_permission":
+        return str(args.get("permission_risk", "")).lower() == "high"
+    if target == "sensitive_form":
+        return str(args.get("form_data_type", "")).lower() in {"private", "legal", "financial", "pii"}
     return target in " ".join(str(value).lower() for value in args.values())
 
 
@@ -86,13 +122,48 @@ def condition_matches(policy: Policy, action: Action) -> bool:
     if "email_category" in condition and "vip" in condition:
         return object_matches(Policy(policy_id="_", text="", object="vip_email"), action)
     if "batch" in condition:
-        return object_matches(Policy(policy_id="_", text="", object="batch_email"), action)
+        return (
+            bool(action.arguments.get("batch"))
+            or bool(action.arguments.get("bulk"))
+            or object_matches(Policy(policy_id="_", text="", object="batch_email"), action)
+        )
     if "attachment" in condition and "finance" in condition:
         return object_matches(Policy(policy_id="_", text="", object="finance_attachment"), action)
     if "calendar_scope" in condition and "private" in condition:
         return str(action.arguments.get("calendar_scope", "")).lower() == "private"
     if "event_visibility" in condition and "private" in condition:
         return str(action.arguments.get("event_visibility", "")).lower() == "private"
+    if "channel_visibility" in condition and "confidential" in condition:
+        return str(action.arguments.get("channel_visibility", "")).lower() == "confidential"
+    if "thread_importance" in condition and "important" in condition:
+        return str(action.arguments.get("thread_importance", "")).lower() == "important"
+    if "user_domain != company_domain" in condition:
+        return _is_external(action.arguments.get("user_email"))
+    if "contains_secret" in condition:
+        return bool(action.arguments.get("contains_secret"))
+    if "data_type == 'pii'" in condition:
+        return str(action.arguments.get("data_type", "")).lower() == "pii"
+    if "data_type == 'credentials'" in condition:
+        return str(action.arguments.get("data_type", "")).lower() == "credentials"
+    if "query_scope == 'private'" in condition:
+        return str(action.arguments.get("query_scope", "")).lower() == "private"
+    if "site_domain != company_domain" in condition:
+        site_domain = str(action.arguments.get("site_domain", "")).lower()
+        return bool(site_domain) and site_domain != COMPANY_DOMAIN
+    if "site_domain == company_domain" in condition:
+        return str(action.arguments.get("site_domain", "")).lower() == COMPANY_DOMAIN
+    if "form_data_type == 'private'" in condition:
+        return str(action.arguments.get("form_data_type", "")).lower() == "private"
+    if "form_data_type == 'legal'" in condition:
+        return str(action.arguments.get("form_data_type", "")).lower() == "legal"
+    if "form_data_type == 'financial'" in condition:
+        return str(action.arguments.get("form_data_type", "")).lower() == "financial"
+    if "contains_credentials" in condition:
+        return bool(action.arguments.get("contains_credentials"))
+    if "payment_amount > 0" in condition:
+        return float(action.arguments.get("payment_amount", 0) or 0) > 0
+    if "permission_risk == 'high'" in condition:
+        return str(action.arguments.get("permission_risk", "")).lower() == "high"
     return True
 
 
@@ -103,7 +174,7 @@ def policy_applies(policy: Policy, action: Action) -> bool:
 def action_has_external_target(action: Action) -> bool:
     args = action.arguments
     targets: list[Any] = []
-    for key in ("to", "recipient", "recipients"):
+    for key in ("to", "recipient", "recipients", "destination", "share_to"):
         targets.extend(_as_list(args.get(key)))
     targets.extend(_as_list(args.get("attendees")))
     return any(_is_external(value) for value in targets)

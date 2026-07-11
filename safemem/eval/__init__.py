@@ -1,1 +1,1 @@
-"""Evaluation helpers."""
+"""实验评测与统计辅助包。"""

@@ -1,3 +1,5 @@
+"""SafeMem 回归测试模块。"""
+
 from __future__ import annotations
 
 from safemem.models import Action, Decision, Policy

@@ -1,3 +1,5 @@
+"""SafeMem 回归测试模块。"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field, fields
@@ -8,6 +10,8 @@ Decision = Literal["allow", "block", "ask_confirmation", "revise"]
 
 @dataclass
 class Policy:
+    """一条可追溯的策略记录，兼容自然语言策略和结构化策略。"""
+
     policy_id: str
     text: str
     source: str = "user"
@@ -20,13 +24,19 @@ class Policy:
     effect: Decision = "allow"
     severity: str = "low"
     priority: int = 0
+    issuer: str = ""
+    authority: int = 0
+    version: int = 1
+    supersedes: list[str] = field(default_factory=list)
+    active: bool = True
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Policy":
+        source = data.get("source", "user")
         return cls(
             policy_id=data["policy_id"],
             text=data.get("text") or data.get("evidence", ""),
-            source=data.get("source", "user"),
+            source=source,
             scope=data.get("scope", ""),
             actor=data.get("actor", "agent"),
             tool=data.get("tool", data.get("action", "")),
@@ -36,6 +46,11 @@ class Policy:
             effect=data.get("effect", "allow"),
             severity=data.get("severity", "low"),
             priority=int(data.get("priority", 0)),
+            issuer=data.get("issuer", source),
+            authority=int(data.get("authority", _default_authority(source))),
+            version=int(data.get("version", 1)),
+            supersedes=[str(item) for item in data.get("supersedes", [])],
+            active=bool(data.get("active", True)),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -52,6 +67,11 @@ class Policy:
             "effect": self.effect,
             "severity": self.severity,
             "priority": self.priority,
+            "issuer": self.issuer,
+            "authority": self.authority,
+            "version": self.version,
+            "supersedes": self.supersedes,
+            "active": self.active,
         }
 
 
@@ -70,6 +90,8 @@ class Action:
 
 @dataclass
 class Episode:
+    """一次动作安全评估所需的输入、策略池和离线评测标注。"""
+
     episode_id: str
     domain: str
     task_goal: str
@@ -100,6 +122,10 @@ class Episode:
     msr_policy_source: str = "canonical_policy_registry"
     policy_pool_corrupted: bool = False
     corrupted_policy_ids: list[str] = field(default_factory=list)
+    challenge_type: str = ""
+    certificate_policy_ids: list[str] = field(default_factory=list)
+    conflict_policy_ids: list[str] = field(default_factory=list)
+    risk_evidence_keys: list[str] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Episode":
@@ -157,6 +183,10 @@ class Episode:
             msr_policy_source=data.get("msr_policy_source", "canonical_policy_registry"),
             policy_pool_corrupted=bool(data.get("policy_pool_corrupted", False)),
             corrupted_policy_ids=list(data.get("corrupted_policy_ids", [])),
+            challenge_type=data.get("challenge_type", ""),
+            certificate_policy_ids=list(data.get("certificate_policy_ids", [])),
+            conflict_policy_ids=list(data.get("conflict_policy_ids", [])),
+            risk_evidence_keys=list(data.get("risk_evidence_keys", [])),
         )
 
     def required_policy_ids(self) -> list[str]:
@@ -183,6 +213,17 @@ def _policies_from(
     return [Policy.from_dict(item) for item in data.get(key, [])]
 
 
+def _default_authority(source: str) -> int:
+    """为旧数据提供稳定的来源权威默认值，避免破坏已有 episode。"""
+
+    return {
+        "system": 4,
+        "organization": 3,
+        "user": 2,
+        "memory": 1,
+    }.get(source.lower(), 1)
+
+
 def _default_carried_policy(
     data: dict[str, Any],
     initial_policy: list[Policy],
@@ -199,6 +240,8 @@ def _default_carried_policy(
 
 @dataclass
 class AgentResult:
+    """记录 Agent 决策、策略上下文和 V-MSR 验证证据。"""
+
     episode_id: str
     agent: str
     decision: Decision
@@ -220,6 +263,18 @@ class AgentResult:
     policy_coverage: float | None = None
     irrelevant_policy_rate: float = 0.0
     retrieved_policy_count: int = 0
+    verification_mode: str = ""
+    certificate_policy_ids: list[str] = field(default_factory=list)
+    certificate_decision: str = ""
+    certificate_internal_validity: bool | None = None
+    certificate_validity: bool | None = None
+    certificate_minimality: bool | None = None
+    certificate_oracle_match: bool | None = None
+    decision_stability: bool | None = None
+    unknown_escalated: bool = False
+    conflict_resolved: bool | None = None
+    guard_override: bool = False
+    verification_trace: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "AgentResult":
@@ -250,4 +305,16 @@ class AgentResult:
             "policy_coverage": self.policy_coverage,
             "irrelevant_policy_rate": self.irrelevant_policy_rate,
             "retrieved_policy_count": self.retrieved_policy_count,
+            "verification_mode": self.verification_mode,
+            "certificate_policy_ids": self.certificate_policy_ids,
+            "certificate_decision": self.certificate_decision,
+            "certificate_internal_validity": self.certificate_internal_validity,
+            "certificate_validity": self.certificate_validity,
+            "certificate_minimality": self.certificate_minimality,
+            "certificate_oracle_match": self.certificate_oracle_match,
+            "decision_stability": self.decision_stability,
+            "unknown_escalated": self.unknown_escalated,
+            "conflict_resolved": self.conflict_resolved,
+            "guard_override": self.guard_override,
+            "verification_trace": self.verification_trace,
         }

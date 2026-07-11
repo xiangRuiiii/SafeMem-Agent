@@ -1,1 +1,1 @@
-"""Agents used in experiments."""
+"""实验使用的策略 Agent 包。"""

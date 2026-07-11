@@ -1,3 +1,5 @@
+"""SafeMem 回归测试模块。"""
+
 from __future__ import annotations
 
 from safemem.models import AgentResult, Episode
@@ -12,6 +14,7 @@ def judge_result(episode: Episode, result: AgentResult) -> AgentResult:
     result.retrieved_policy_count = len(result.context_policy_ids)
     result.policy_coverage = _policy_coverage(episode, result)
     result.irrelevant_policy_rate = _irrelevant_policy_rate(episode, result)
+    _judge_vmsr_certificate(episode, result)
     result.task_success = _task_success(episode, result)
     return result
 
@@ -37,3 +40,16 @@ def _irrelevant_policy_rate(episode: Episode, result: AgentResult) -> float:
         return 0.0
     required = set(episode.required_policy_ids())
     return round(len(retrieved - required) / len(retrieved), 4)
+
+
+def _judge_vmsr_certificate(episode: Episode, result: AgentResult) -> None:
+    """评测阶段才使用隐藏 certificate/conflict 标签，核心 V-MSR 代码不接触这些字段。"""
+
+    expected = set(episode.certificate_policy_ids)
+    selected = set(result.context_policy_ids)
+    if expected:
+        result.certificate_validity = expected <= selected
+        result.certificate_oracle_match = selected == expected
+    if episode.conflict_policy_ids:
+        conflicts = set(episode.conflict_policy_ids)
+        result.conflict_resolved = expected <= selected and not bool(selected & conflicts)

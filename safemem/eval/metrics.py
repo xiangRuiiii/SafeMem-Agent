@@ -1,3 +1,5 @@
+"""SafeMem 回归测试模块。"""
+
 from __future__ import annotations
 
 from collections import defaultdict
@@ -66,6 +68,14 @@ def _summary_row(agent: str, items: list[AgentResult]) -> dict[str, float | str 
         "avg_policy_coverage": _avg_optional(item.policy_coverage for item in items),
         "avg_irrelevant_policy_rate": round(sum(item.irrelevant_policy_rate for item in items) / total, 4),
         "avg_retrieved_policies": round(sum(item.retrieved_policy_count for item in items) / total, 2),
+        "certificate_internal_validity": _avg_optional(item.certificate_internal_validity for item in items),
+        "certificate_validity": _avg_optional(item.certificate_validity for item in items),
+        "certificate_minimality": _avg_optional(item.certificate_minimality for item in items),
+        "certificate_oracle_match": _avg_optional(item.certificate_oracle_match for item in items),
+        "decision_stability": _avg_optional(item.decision_stability for item in items),
+        "unknown_escalation_rate": _rate(item.unknown_escalated for item in items),
+        "conflict_resolution_accuracy": _avg_optional(item.conflict_resolved for item in items),
+        "guard_override_rate": _rate(item.guard_override for item in items),
     }
 
 
