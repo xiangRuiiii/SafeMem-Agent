@@ -14,7 +14,7 @@ This experiment compares MSR with lexical and vector retrieval baselines before 
 | `msr_noisy` | `noisy_policy_pool` | adaptive | action-applicability retrieval from noisy pool |
 | `hybrid_msr_clean` | `canonical_policy_registry` | recall5+filter | embedding top-5 recall plus MSR applicability filter |
 | `hybrid_msr_noisy` | `noisy_policy_pool` | recall5+filter | embedding top-5 recall plus MSR applicability filter and over-inclusion penalty |
-| `oracle_minimal` | `ground_truth_policies` | minimal | oracle upper bound |
+| `oracle_minimal` | `ground_truth_policies` | minimal | oracle minimal-policy-list diagnostic |
 
 The current embedding baseline is a deterministic local hash-vector retriever with metadata-rich action and policy texts. It does not call an embedding API.
 

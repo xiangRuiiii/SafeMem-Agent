@@ -23,7 +23,7 @@ Supported LLM methods:
 | `llm_msr_clean` | `canonical_policy_registry` + MSR | clean 检索恢复 |
 | `llm_all_policy_noisy` | full `noisy_policy_pool` | noisy 全量对照 |
 | `llm_msr_noisy` | `noisy_policy_pool` + MSR | noisy 检索恢复 |
-| `llm_oracle_minimal` | `ground_truth_policies` | oracle 上界 |
+| `llm_oracle_minimal` | `ground_truth_policies` | oracle 最小策略列表诊断 |
 
 ## Dry Run First
 
@@ -112,4 +112,4 @@ python experiments\run_llm_eval.py `
 2. Run English 90 episodes with four core methods.
 3. Add Chinese 90 episodes after the English prompt format is stable.
 4. Add noisy ablations: `all_policy_noisy,msr_noisy`.
-5. Use `oracle_minimal` only as an upper-bound diagnostic, not as a deployable method.
+5. Use `oracle_minimal` only as a minimal-policy-list diagnostic, not as a deployable method. It is not a certificate oracle on missing-evidence cases because it does not receive V-MSR's verifier-produced decision floor.

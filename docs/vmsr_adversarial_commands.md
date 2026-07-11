@@ -36,7 +36,7 @@ python experiments\build_policy_cache.py --episodes data\episodes\vmsr_adversari
 python experiments\run_retrieval_eval.py --episodes data\episodes\vmsr_adversarial_36_en.jsonl --methods all_policy_noisy,bm25_noisy_top3,bm25_noisy_top5,msr_noisy,hybrid_msr_noisy,oracle_minimal,vmsr_struct_context_noisy,vmsr_text_context_noisy,vmsr_text_guard_noisy --vmsr-cache data\policy_cache\vmsr_text_v3.jsonl --vmsr-compiler-model deepseek-chat --tag vmsr_adversarial_retrieval
 ```
 
-Inspect `unknown_escalation_rate`, `certificate_oracle_match`, `conflict_resolution_accuracy`, retrieved-policy count, irrelevant-policy rate, and token cost. The V-MSR context should be minimal; this challenge does not claim that BM25 top-8 alone determines applicability because V-MSR closes over the same-tool policy frontier before verification.
+Inspect `unknown_escalation_rate`, `certificate_oracle_match`, `conflict_resolution_accuracy`, retrieved-policy count, irrelevant-policy rate, and token cost. `oracle_minimal` is only a minimal-policy-list diagnostic here: it does not receive V-MSR's verifier certificate or missing-evidence decision floor. The V-MSR context should be minimal; this challenge does not claim that BM25 top-8 alone determines applicability because V-MSR closes over the same-tool policy frontier before verification.
 
 ## 4. Run the focused DeepSeek LLM comparison
 

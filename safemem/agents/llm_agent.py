@@ -31,7 +31,8 @@ LLM_METHOD_GROUPS = {
     "msr_clean": "clean 检索恢复",
     "all_policy_noisy": "noisy 全量对照",
     "msr_noisy": "noisy 检索恢复",
-    "oracle_minimal": "oracle 上界",
+    # 该基线只提供隐藏标注中的最小策略列表；它不携带 V-MSR 的验证证书或 unknown 下限。
+    "oracle_minimal": "oracle 最小策略列表诊断",
 }
 
 for _source in ("clean", "noisy"):
