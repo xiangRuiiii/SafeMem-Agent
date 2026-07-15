@@ -1,0 +1,645 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="451.583781pt" height="256.722775pt" viewBox="0 0 451.583781 256.722775" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-07-13T13:36:13.000990</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.10.3, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 256.722775 
+L 451.583781 256.722775 
+L 451.583781 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 44.724 230.737088 
+L 161.396727 230.737088 
+L 161.396727 47.785088 
+L 44.724 47.785088 
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 44.724 56.101087 
+L 156.909315 56.101087 
+L 156.909315 68.316681 
+L 44.724 68.316681 
+z
+" clip-path="url(#p8e4e365750)" style="fill: #59647d"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 44.724 103.084138 
+L 149.123654 103.084138 
+L 149.123654 115.299732 
+L 44.724 115.299732 
+z
+" clip-path="url(#p8e4e365750)" style="fill: #59647d"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 44.724 150.067189 
+L 156.909315 150.067189 
+L 156.909315 162.282782 
+L 44.724 162.282782 
+z
+" clip-path="url(#p8e4e365750)" style="fill: #0f4d92"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 44.724 197.05024 
+L 156.909315 197.05024 
+L 156.909315 209.265833 
+L 44.724 209.265833 
+z
+" clip-path="url(#p8e4e365750)" style="fill: #0f4d92"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 44.724 69.256342 
+L 44.724 69.256342 
+L 44.724 81.471935 
+L 44.724 81.471935 
+z
+" clip-path="url(#p8e4e365750)" style="fill: #e28e2c"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 44.724 116.239393 
+L 52.509661 116.239393 
+L 52.509661 128.454986 
+L 44.724 128.454986 
+z
+" clip-path="url(#p8e4e365750)" style="fill: #e28e2c"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 44.724 163.222443 
+L 44.724 163.222443 
+L 44.724 175.438037 
+L 44.724 175.438037 
+z
+" clip-path="url(#p8e4e365750)" style="fill: #e28e2c"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 44.724 210.205494 
+L 44.724 210.205494 
+L 44.724 222.421087 
+L 44.724 222.421087 
+z
+" clip-path="url(#p8e4e365750)" style="fill: #e28e2c"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <path d="M 44.724 230.737088 
+L 44.724 47.785088 
+" clip-path="url(#p8e4e365750)" style="fill: none; stroke: #e8ebef; stroke-width: 0.65; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_2">
+      <defs>
+       <path id="m5baf2bc7c3" d="M 0 0 
+L 0 2.8 
+" style="stroke: #252a33; stroke-width: 0.75"/>
+      </defs>
+      <g>
+       <use xlink:href="#m5baf2bc7c3" x="44.724" y="230.737088" style="fill: #252a33; stroke: #252a33; stroke-width: 0.75"/>
+      </g>
+     </g>
+     <g id="text_1">
+      <text style="font-size: 6.8px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #252a33" x="44.724" y="241.9044" transform="rotate(-0 44.724 241.9044)">0.0</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_3">
+      <path d="M 100.816657 230.737088 
+L 100.816657 47.785088 
+" clip-path="url(#p8e4e365750)" style="fill: none; stroke: #e8ebef; stroke-width: 0.65; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_4">
+      <g>
+       <use xlink:href="#m5baf2bc7c3" x="100.816657" y="230.737088" style="fill: #252a33; stroke: #252a33; stroke-width: 0.75"/>
+      </g>
+     </g>
+     <g id="text_2">
+      <text style="font-size: 6.8px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #252a33" x="100.816657" y="241.9044" transform="rotate(-0 100.816657 241.9044)">0.5</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_5">
+      <path d="M 156.909315 230.737088 
+L 156.909315 47.785088 
+" clip-path="url(#p8e4e365750)" style="fill: none; stroke: #e8ebef; stroke-width: 0.65; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_6">
+      <g>
+       <use xlink:href="#m5baf2bc7c3" x="156.909315" y="230.737088" style="fill: #252a33; stroke: #252a33; stroke-width: 0.75"/>
+      </g>
+     </g>
+     <g id="text_3">
+      <text style="font-size: 6.8px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #252a33" x="156.909315" y="241.9044" transform="rotate(-0 156.909315 241.9044)">1.0</text>
+     </g>
+    </g>
+    <g id="text_4">
+     <text style="font-size: 7.5px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: middle" x="103.060364" y="252.624259" transform="rotate(-0 103.060364 252.624259)">Episode rate</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_7">
+      <defs>
+       <path id="m09b92709f2" d="M 0 0 
+L -2.8 0 
+" style="stroke: #252a33; stroke-width: 0.75"/>
+      </defs>
+      <g>
+       <use xlink:href="#m09b92709f2" x="44.724" y="68.786511" style="fill: #252a33; stroke: #252a33; stroke-width: 0.75"/>
+      </g>
+     </g>
+     <g id="text_5">
+      <text style="font-size: 6.8px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: end; fill: #252a33" x="38.424" y="71.220167" transform="rotate(-0 38.424 71.220167)">Struct clean</text>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_8">
+      <g>
+       <use xlink:href="#m09b92709f2" x="44.724" y="115.769562" style="fill: #252a33; stroke: #252a33; stroke-width: 0.75"/>
+      </g>
+     </g>
+     <g id="text_6">
+      <text style="font-size: 6.8px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: end; fill: #252a33" x="38.424" y="118.244656" transform="rotate(-0 38.424 118.244656)">Struct noisy</text>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_9">
+      <g>
+       <use xlink:href="#m09b92709f2" x="44.724" y="162.752613" style="fill: #252a33; stroke: #252a33; stroke-width: 0.75"/>
+      </g>
+     </g>
+     <g id="text_7">
+      <text style="font-size: 6.8px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: end; fill: #252a33" x="38.424" y="165.186269" transform="rotate(-0 38.424 165.186269)">Text clean</text>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_10">
+      <g>
+       <use xlink:href="#m09b92709f2" x="44.724" y="209.735664" style="fill: #252a33; stroke: #252a33; stroke-width: 0.75"/>
+      </g>
+     </g>
+     <g id="text_8">
+      <text style="font-size: 6.8px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: end; fill: #252a33" x="38.424" y="212.16932" transform="rotate(-0 38.424 212.16932)">Text noisy</text>
+     </g>
+    </g>
+   </g>
+   <g id="patch_11">
+    <path d="M 44.724 230.737087 
+L 44.724 47.785087 
+" style="fill: none; stroke: #252a33; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_12">
+    <path d="M 44.724 230.737088 
+L 161.396727 230.737088 
+" style="fill: none; stroke: #252a33; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="text_9">
+    <g id="patch_13">
+     <path d="M 99.610116 12.558688 
+L 159.063273 12.558688 
+Q 160.427273 12.558688 160.427273 11.194688 
+L 160.427273 5.433531 
+Q 160.427273 4.069531 159.063273 4.069531 
+L 99.610116 4.069531 
+Q 98.246116 4.069531 98.246116 5.433531 
+L 98.246116 11.194688 
+Q 98.246116 12.558688 99.610116 12.558688 
+z
+" style="fill: #f5f6f8"/>
+    </g>
+    <text style="font-size: 6.2px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: end; fill: #858b96" x="159.063273" y="9.889781" transform="rotate(-0 159.063273 9.889781)">challenge set · n = 72</text>
+   </g>
+   <g id="text_10">
+    <text style="font-weight: 700; font-size: 9.5px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: start; fill: #252a33" x="34.223455" y="9.319922" transform="rotate(-0 34.223455 9.319922)">a</text>
+   </g>
+   <g id="text_11">
+    <text style="font-weight: 600; font-size: 8.4px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: start" x="44.724" y="22.785088" transform="rotate(-0 44.724 22.785088)">Action outcomes</text>
+   </g>
+   <g id="legend_1">
+    <g id="patch_14">
+     <path d="M 49.274 44.535088 
+L 160.010641 44.535088 
+Q 161.310641 44.535088 161.310641 43.235087 
+L 161.310641 34.614463 
+Q 161.310641 33.314462 160.010641 33.314462 
+L 49.274 33.314462 
+Q 47.974 33.314462 47.974 34.614463 
+L 47.974 43.235087 
+Q 47.974 44.535088 49.274 44.535088 
+z
+" style="fill: #ffffff; opacity: 0.8; stroke: #cccccc; stroke-width: 0.65; stroke-linejoin: miter"/>
+    </g>
+    <g id="patch_15">
+     <path d="M 50.574 40.567041 
+L 63.574 40.567041 
+L 63.574 36.017041 
+L 50.574 36.017041 
+z
+" style="fill: #59647d"/>
+    </g>
+    <g id="text_12">
+     <text style="font-size: 6.5px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: start" x="66.174" y="40.567041" transform="rotate(-0 66.174 40.567041)">Accuracy</text>
+    </g>
+    <g id="patch_16">
+     <path d="M 105.903219 40.567041 
+L 118.903219 40.567041 
+L 118.903219 36.017041 
+L 105.903219 36.017041 
+z
+" style="fill: #e28e2c"/>
+    </g>
+    <g id="text_13">
+     <text style="font-size: 6.5px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: start" x="121.503219" y="40.567041" transform="rotate(-0 121.503219 40.567041)">False refusal</text>
+    </g>
+   </g>
+  </g>
+  <g id="axes_2">
+   <g id="patch_17">
+    <path d="M 210.094909 230.737088 
+L 311.549455 230.737088 
+L 311.549455 47.785088 
+L 210.094909 47.785088 
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="patch_18">
+    <path d="M 210.094909 56.101087 
+L 299.521238 56.101087 
+L 299.521238 68.316681 
+L 210.094909 68.316681 
+z
+" clip-path="url(#pabc061d08e)" style="fill: #59647d"/>
+   </g>
+   <g id="patch_19">
+    <path d="M 210.094909 103.084138 
+L 283.259245 103.084138 
+L 283.259245 115.299732 
+L 210.094909 115.299732 
+z
+" clip-path="url(#pabc061d08e)" style="fill: #59647d"/>
+   </g>
+   <g id="patch_20">
+    <path d="M 210.094909 150.067189 
+L 299.521238 150.067189 
+L 299.521238 162.282782 
+L 210.094909 162.282782 
+z
+" clip-path="url(#pabc061d08e)" style="fill: #0f4d92"/>
+   </g>
+   <g id="patch_21">
+    <path d="M 210.094909 197.05024 
+L 299.521238 197.05024 
+L 299.521238 209.265833 
+L 210.094909 209.265833 
+z
+" clip-path="url(#pabc061d08e)" style="fill: #0f4d92"/>
+   </g>
+   <g id="patch_22">
+    <path d="M 210.094909 69.256342 
+L 218.221028 69.256342 
+L 218.221028 81.471935 
+L 210.094909 81.471935 
+z
+" clip-path="url(#pabc061d08e)" style="fill: #8064a2"/>
+   </g>
+   <g id="patch_23">
+    <path d="M 210.094909 116.239393 
+L 234.483021 116.239393 
+L 234.483021 128.454986 
+L 210.094909 128.454986 
+z
+" clip-path="url(#pabc061d08e)" style="fill: #8064a2"/>
+   </g>
+   <g id="patch_24">
+    <path d="M 210.094909 163.222443 
+L 218.221028 163.222443 
+L 218.221028 175.438037 
+L 210.094909 175.438037 
+z
+" clip-path="url(#pabc061d08e)" style="fill: #8064a2"/>
+   </g>
+   <g id="patch_25">
+    <path d="M 210.094909 210.205494 
+L 218.221028 210.205494 
+L 218.221028 222.421087 
+L 210.094909 222.421087 
+z
+" clip-path="url(#pabc061d08e)" style="fill: #8064a2"/>
+   </g>
+   <g id="matplotlib.axis_3">
+    <g id="xtick_4">
+     <g id="line2d_11">
+      <path d="M 210.094909 230.737088 
+L 210.094909 47.785088 
+" clip-path="url(#pabc061d08e)" style="fill: none; stroke: #e8ebef; stroke-width: 0.65; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_12">
+      <g>
+       <use xlink:href="#m5baf2bc7c3" x="210.094909" y="230.737088" style="fill: #252a33; stroke: #252a33; stroke-width: 0.75"/>
+      </g>
+     </g>
+     <g id="text_14">
+      <text style="font-size: 6.8px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #252a33" x="210.094909" y="241.9044" transform="rotate(-0 210.094909 241.9044)">0.0</text>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_13">
+      <path d="M 258.871133 230.737088 
+L 258.871133 47.785088 
+" clip-path="url(#pabc061d08e)" style="fill: none; stroke: #e8ebef; stroke-width: 0.65; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_14">
+      <g>
+       <use xlink:href="#m5baf2bc7c3" x="258.871133" y="230.737088" style="fill: #252a33; stroke: #252a33; stroke-width: 0.75"/>
+      </g>
+     </g>
+     <g id="text_15">
+      <text style="font-size: 6.8px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #252a33" x="258.871133" y="241.9044" transform="rotate(-0 258.871133 241.9044)">0.5</text>
+     </g>
+    </g>
+    <g id="xtick_6">
+     <g id="line2d_15">
+      <path d="M 307.647357 230.737088 
+L 307.647357 47.785088 
+" clip-path="url(#pabc061d08e)" style="fill: none; stroke: #e8ebef; stroke-width: 0.65; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_16">
+      <g>
+       <use xlink:href="#m5baf2bc7c3" x="307.647357" y="230.737088" style="fill: #252a33; stroke: #252a33; stroke-width: 0.75"/>
+      </g>
+     </g>
+     <g id="text_16">
+      <text style="font-size: 6.8px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #252a33" x="307.647357" y="241.9044" transform="rotate(-0 307.647357 241.9044)">1.0</text>
+     </g>
+    </g>
+    <g id="text_17">
+     <text style="font-size: 7.5px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: middle" x="260.822182" y="252.624259" transform="rotate(-0 260.822182 252.624259)">Episode rate</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_4">
+    <g id="ytick_5">
+     <g id="line2d_17">
+      <g>
+       <use xlink:href="#m09b92709f2" x="210.094909" y="68.786511" style="fill: #252a33; stroke: #252a33; stroke-width: 0.75"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_6">
+     <g id="line2d_18">
+      <g>
+       <use xlink:href="#m09b92709f2" x="210.094909" y="115.769562" style="fill: #252a33; stroke: #252a33; stroke-width: 0.75"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_7">
+     <g id="line2d_19">
+      <g>
+       <use xlink:href="#m09b92709f2" x="210.094909" y="162.752613" style="fill: #252a33; stroke: #252a33; stroke-width: 0.75"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_8">
+     <g id="line2d_20">
+      <g>
+       <use xlink:href="#m09b92709f2" x="210.094909" y="209.735664" style="fill: #252a33; stroke: #252a33; stroke-width: 0.75"/>
+      </g>
+     </g>
+    </g>
+   </g>
+   <g id="patch_26">
+    <path d="M 210.094909 230.737087 
+L 210.094909 47.785087 
+" style="fill: none; stroke: #252a33; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_27">
+    <path d="M 210.094909 230.737088 
+L 311.549455 230.737088 
+" style="fill: none; stroke: #252a33; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="text_18">
+    <text style="font-weight: 700; font-size: 9.5px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: start; fill: #252a33" x="200.964" y="9.319922" transform="rotate(-0 200.964 9.319922)">b</text>
+   </g>
+   <g id="text_19">
+    <text style="font-weight: 600; font-size: 8.4px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: start" x="210.094909" y="22.785088" transform="rotate(-0 210.094909 22.785088)">Certificate behavior</text>
+   </g>
+   <g id="legend_2">
+    <g id="patch_28">
+     <path d="M 214.644909 44.535088 
+L 291.014831 44.535088 
+Q 292.314831 44.535088 292.314831 43.235087 
+L 292.314831 25.420009 
+Q 292.314831 24.120009 291.014831 24.120009 
+L 214.644909 24.120009 
+Q 213.344909 24.120009 213.344909 25.420009 
+L 213.344909 43.235087 
+Q 213.344909 44.535088 214.644909 44.535088 
+z
+" style="fill: #ffffff; opacity: 0.8; stroke: #cccccc; stroke-width: 0.65; stroke-linejoin: miter"/>
+    </g>
+    <g id="patch_29">
+     <path d="M 215.944909 31.372588 
+L 228.944909 31.372588 
+L 228.944909 26.822588 
+L 215.944909 26.822588 
+z
+" style="fill: #59647d"/>
+    </g>
+    <g id="text_20">
+     <text style="font-size: 6.5px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: start" x="231.544909" y="31.372588" transform="rotate(-0 231.544909 31.372588)">Decision stability</text>
+    </g>
+    <g id="patch_30">
+     <path d="M 215.944909 40.643213 
+L 228.944909 40.643213 
+L 228.944909 36.093213 
+L 215.944909 36.093213 
+z
+" style="fill: #8064a2"/>
+    </g>
+    <g id="text_21">
+     <text style="font-size: 6.5px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: start" x="231.544909" y="40.643213" transform="rotate(-0 231.544909 40.643213)">Unknown escalation</text>
+    </g>
+   </g>
+  </g>
+  <g id="axes_3">
+   <g id="patch_31">
+    <path d="M 360.247636 230.737088 
+L 446.484 230.737088 
+L 446.484 47.785088 
+L 360.247636 47.785088 
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="patch_32">
+    <path d="M 360.247636 56.101088 
+L 435.464909 56.101088 
+L 435.464909 82.263784 
+L 360.247636 82.263784 
+z
+" clip-path="url(#p3c8cf8ec15)" style="fill: #59647d"/>
+   </g>
+   <g id="patch_33">
+    <path d="M 360.247636 102.820189 
+L 435.464909 102.820189 
+L 435.464909 128.982885 
+L 360.247636 128.982885 
+z
+" clip-path="url(#p3c8cf8ec15)" style="fill: #59647d"/>
+   </g>
+   <g id="patch_34">
+    <path d="M 360.247636 149.53929 
+L 411.031273 149.53929 
+L 411.031273 175.701986 
+L 360.247636 175.701986 
+z
+" clip-path="url(#p3c8cf8ec15)" style="fill: #0f4d92"/>
+   </g>
+   <g id="patch_35">
+    <path d="M 360.247636 196.258391 
+L 411.031273 196.258391 
+L 411.031273 222.421087 
+L 360.247636 222.421087 
+z
+" clip-path="url(#p3c8cf8ec15)" style="fill: #0f4d92"/>
+   </g>
+   <g id="matplotlib.axis_5">
+    <g id="xtick_7">
+     <g id="line2d_21">
+      <path d="M 360.247636 230.737088 
+L 360.247636 47.785088 
+" clip-path="url(#p3c8cf8ec15)" style="fill: none; stroke: #e8ebef; stroke-width: 0.65; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_22">
+      <g>
+       <use xlink:href="#m5baf2bc7c3" x="360.247636" y="230.737088" style="fill: #252a33; stroke: #252a33; stroke-width: 0.75"/>
+      </g>
+     </g>
+     <g id="text_22">
+      <text style="font-size: 6.8px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #252a33" x="360.247636" y="241.9044" transform="rotate(-0 360.247636 241.9044)">0</text>
+     </g>
+    </g>
+    <g id="xtick_8">
+     <g id="line2d_23">
+      <path d="M 398.574909 230.737088 
+L 398.574909 47.785088 
+" clip-path="url(#p3c8cf8ec15)" style="fill: none; stroke: #e8ebef; stroke-width: 0.65; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_24">
+      <g>
+       <use xlink:href="#m5baf2bc7c3" x="398.574909" y="230.737088" style="fill: #252a33; stroke: #252a33; stroke-width: 0.75"/>
+      </g>
+     </g>
+     <g id="text_23">
+      <text style="font-size: 6.8px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #252a33" x="398.574909" y="241.9044" transform="rotate(-0 398.574909 241.9044)">20</text>
+     </g>
+    </g>
+    <g id="xtick_9">
+     <g id="line2d_25">
+      <path d="M 436.902182 230.737088 
+L 436.902182 47.785088 
+" clip-path="url(#p3c8cf8ec15)" style="fill: none; stroke: #e8ebef; stroke-width: 0.65; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_26">
+      <g>
+       <use xlink:href="#m5baf2bc7c3" x="436.902182" y="230.737088" style="fill: #252a33; stroke: #252a33; stroke-width: 0.75"/>
+      </g>
+     </g>
+     <g id="text_24">
+      <text style="font-size: 6.8px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: middle; fill: #252a33" x="436.902182" y="241.9044" transform="rotate(-0 436.902182 241.9044)">40</text>
+     </g>
+    </g>
+    <g id="text_25">
+     <text style="font-size: 7.5px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: middle" x="403.365818" y="252.624259" transform="rotate(-0 403.365818 252.624259)">Policy tokens</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_6">
+    <g id="ytick_9">
+     <g id="line2d_27">
+      <g>
+       <use xlink:href="#m09b92709f2" x="360.247636" y="69.182436" style="fill: #252a33; stroke: #252a33; stroke-width: 0.75"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_10">
+     <g id="line2d_28">
+      <g>
+       <use xlink:href="#m09b92709f2" x="360.247636" y="115.901537" style="fill: #252a33; stroke: #252a33; stroke-width: 0.75"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_11">
+     <g id="line2d_29">
+      <g>
+       <use xlink:href="#m09b92709f2" x="360.247636" y="162.620638" style="fill: #252a33; stroke: #252a33; stroke-width: 0.75"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_12">
+     <g id="line2d_30">
+      <g>
+       <use xlink:href="#m09b92709f2" x="360.247636" y="209.339739" style="fill: #252a33; stroke: #252a33; stroke-width: 0.75"/>
+      </g>
+     </g>
+    </g>
+   </g>
+   <g id="patch_36">
+    <path d="M 360.247636 230.737088 
+L 360.247636 47.785088 
+" style="fill: none; stroke: #252a33; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_37">
+    <path d="M 360.247636 230.737088 
+L 446.484 230.737088 
+" style="fill: none; stroke: #252a33; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="text_26">
+    <text style="font-size: 6.2px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: start; fill: #252a33" x="436.998" y="70.785233" transform="rotate(-0 436.998 70.785233)">39.2</text>
+   </g>
+   <g id="text_27">
+    <text style="font-size: 6.2px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: start; fill: #252a33" x="436.998" y="117.504334" transform="rotate(-0 436.998 117.504334)">39.2</text>
+   </g>
+   <g id="text_28">
+    <text style="font-size: 6.2px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: start; fill: #252a33" x="412.564364" y="164.223435" transform="rotate(-0 412.564364 164.223435)">26.5</text>
+   </g>
+   <g id="text_29">
+    <text style="font-size: 6.2px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: start; fill: #252a33" x="412.564364" y="210.942536" transform="rotate(-0 412.564364 210.942536)">26.5</text>
+   </g>
+   <g id="text_30">
+    <text style="font-weight: 700; font-size: 9.5px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: start; fill: #252a33" x="352.486364" y="9.319922" transform="rotate(-0 352.486364 9.319922)">c</text>
+   </g>
+   <g id="text_31">
+    <text style="font-weight: 600; font-size: 8.4px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', sans-serif; text-anchor: start" x="360.247636" y="22.785088" transform="rotate(-0 360.247636 22.785088)">Context cost</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p8e4e365750">
+   <rect x="44.724" y="47.785088" width="116.672727" height="182.952"/>
+  </clipPath>
+  <clipPath id="pabc061d08e">
+   <rect x="210.094909" y="47.785088" width="101.454545" height="182.952"/>
+  </clipPath>
+  <clipPath id="p3c8cf8ec15">
+   <rect x="360.247636" y="47.785088" width="86.236364" height="182.952"/>
+  </clipPath>
+ </defs>
+</svg>

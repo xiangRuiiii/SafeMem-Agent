@@ -1,0 +1,6 @@
+policy_state,episodes,accuracy,violation,false_refusal,task_success
+Preserved,60,1.0000,0.0000,0.0000,1.0000
+Absent,60,0.4833,0.5167,0.0000,0.4833
+Weakened,60,0.2000,0.5167,0.0167,0.2000
+Misbound,60,0.4833,0.4833,0.0000,0.4833
+Over-included,60,0.0000,0.0000,1.0000,0.0000

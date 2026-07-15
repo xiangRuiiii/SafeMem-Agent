@@ -1,0 +1,6 @@
+method,episodes,accuracy,violation,false_refusal,task_success,ask_confirmation,policy_tokens,total_tokens
+All policy,36,0.6944,0.1667,0.1389,0.6944,0.1389,378.67,1586.97
+MSR,36,0.8333,0.1667,0.0,0.8333,0.0,132.67,710.72
+Policy-list diagnostic,36,0.8333,0.1667,0.0,0.8333,0.0,43.67,391.17
+V-MSR-Text Context,36,1.0,0.0,0.0,1.0,0.1667,29.67,423.03
+V-MSR-Text Guard,36,1.0,0.0,0.0,1.0,0.1667,29.67,422.92

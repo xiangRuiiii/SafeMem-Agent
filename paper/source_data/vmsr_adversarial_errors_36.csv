@@ -1,0 +1,16 @@
+method,challenge,episodes,correct,unsafe_allow,false_refusal_confirm
+All policy,Authority shadowing,12,11,0,1
+All policy,Crowded predicates,12,8,0,4
+All policy,Unknown evidence,12,6,6,0
+MSR,Authority shadowing,12,12,0,0
+MSR,Crowded predicates,12,12,0,0
+MSR,Unknown evidence,12,6,6,0
+Policy-list diagnostic,Authority shadowing,12,12,0,0
+Policy-list diagnostic,Crowded predicates,12,12,0,0
+Policy-list diagnostic,Unknown evidence,12,6,6,0
+V-MSR Context,Authority shadowing,12,12,0,0
+V-MSR Context,Crowded predicates,12,12,0,0
+V-MSR Context,Unknown evidence,12,12,0,0
+V-MSR Guard,Authority shadowing,12,12,0,0
+V-MSR Guard,Crowded predicates,12,12,0,0
+V-MSR Guard,Unknown evidence,12,12,0,0

@@ -1,0 +1,6 @@
+policy_state,episodes,correct,unsafe_allow,under_blocked_confirmation,false_refusal,wrong_revision,other_wrong
+Preserved,60,60,0,0,0,0,0
+Absent,60,29,31,0,0,0,0
+Weakened,60,12,31,16,1,0,0
+Misbound,60,29,29,2,0,0,0
+Over-included,60,0,0,0,60,0,0

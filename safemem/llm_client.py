@@ -6,7 +6,7 @@ import json
 import os
 import urllib.error
 import urllib.request
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Protocol
 
@@ -23,6 +23,8 @@ class LlmResponse:
 
 @dataclass
 class LlmSettings:
+    """单个 LLM profile 的连接与供应商扩展配置。"""
+
     profile: str = ""
     provider: str = "openai_compatible"
     api_key: str = ""
@@ -31,6 +33,8 @@ class LlmSettings:
     embedding_api_key: str = ""
     embedding_base_url: str = ""
     embedding_model: str = ""
+    request_options: dict[str, Any] = field(default_factory=dict)
+    omit_request_fields: set[str] = field(default_factory=set)
 
 
 class ChatClient(Protocol):
@@ -71,6 +75,8 @@ class OpenAICompatibleClient:
             or "https://api.openai.com/v1"
         ).rstrip("/")
         self.timeout = timeout
+        self.request_options = dict(settings.request_options)
+        self.omit_request_fields = set(settings.omit_request_fields)
 
     def complete(
         self,
@@ -86,13 +92,18 @@ class OpenAICompatibleClient:
         if not model:
             raise RuntimeError("Missing model. Pass --model or set SAFEMEM_LLM_MODEL / LLM_MODEL.")
 
-        payload: dict[str, Any] = {
+        # 供应商扩展参数（例如 Kimi 的 thinking 开关）只补充请求体，
+        # 不允许覆盖基准评测固定的模型、消息和生成参数。
+        payload: dict[str, Any] = dict(self.request_options)
+        payload.update({
             "model": model,
             "messages": messages,
-            "temperature": temperature,
-            "max_tokens": max_tokens,
-        }
-        if json_mode:
+        })
+        if "temperature" not in self.omit_request_fields:
+            payload["temperature"] = temperature
+        if "max_tokens" not in self.omit_request_fields:
+            payload["max_tokens"] = max_tokens
+        if json_mode and "response_format" not in self.omit_request_fields:
             payload["response_format"] = {"type": "json_object"}
 
         request = urllib.request.Request(
@@ -238,6 +249,8 @@ class GeminiClient:
             or "https://generativelanguage.googleapis.com/v1beta"
         ).rstrip("/")
         self.timeout = timeout
+        self.request_options = dict(settings.request_options)
+        self.omit_request_fields = set(settings.omit_request_fields)
 
     def complete(
         self,
@@ -254,19 +267,22 @@ class GeminiClient:
             raise RuntimeError("Missing Gemini model. Pass --model or configure the profile.")
 
         system, user_messages = _split_system_message(messages)
+        # Gemini 的供应商扩展项位于 generationConfig，例如 thinkingConfig。
+        generation_config: dict[str, Any] = dict(self.request_options)
+        if "temperature" not in self.omit_request_fields:
+            generation_config["temperature"] = temperature
+        if "maxOutputTokens" not in self.omit_request_fields:
+            generation_config["maxOutputTokens"] = max_tokens
         payload: dict[str, Any] = {
             "contents": [
                 {"role": _gemini_role(item["role"]), "parts": [{"text": item["content"]}]}
                 for item in user_messages
             ],
-            "generationConfig": {
-                "temperature": temperature,
-                "maxOutputTokens": max_tokens,
-            },
+            "generationConfig": generation_config,
         }
         if system:
             payload["systemInstruction"] = {"parts": [{"text": system}]}
-        if json_mode:
+        if json_mode and "responseMimeType" not in self.omit_request_fields:
             payload["generationConfig"]["responseMimeType"] = "application/json"
 
         request = urllib.request.Request(
@@ -374,6 +390,8 @@ def load_llm_settings(
         embedding_api_key=str(selected.get("embedding_api_key", "")).strip(),
         embedding_base_url=str(selected.get("embedding_base_url", "")).strip(),
         embedding_model=str(selected.get("embedding_model", "")).strip(),
+        request_options=_request_options(selected.get("request_options", {})),
+        omit_request_fields=_omit_request_fields(selected.get("omit_request_fields", [])),
     )
 
 
@@ -387,6 +405,23 @@ def _first_env(*names: str) -> str:
         if value:
             return value
     return ""
+
+
+def _request_options(value: Any) -> dict[str, Any]:
+    """只接受 JSON 对象形式的供应商扩展参数，避免错误配置进入请求体。"""
+
+    if not isinstance(value, dict):
+        return {}
+    return dict(value)
+
+
+def _omit_request_fields(value: Any) -> set[str]:
+    """允许 profile 省略少数不被某些兼容端点接受的标准字段。"""
+
+    allowed = {"temperature", "max_tokens", "response_format", "maxOutputTokens", "responseMimeType"}
+    if not isinstance(value, list):
+        return set()
+    return {str(item).strip() for item in value if str(item).strip() in allowed}
 
 
 def _read_json(request: urllib.request.Request, timeout: float, label: str) -> dict[str, Any]:

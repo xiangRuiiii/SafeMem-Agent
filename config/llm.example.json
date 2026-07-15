@@ -10,33 +10,69 @@
     "qwen": {
       "provider": "openai_compatible",
       "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-      "model": "qwen-plus",
+      "model": "qwen3.6-plus",
       "embedding_base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
       "embedding_model": "text-embedding-v4",
       "api_key": "YOUR_QWEN_API_KEY"
     },
+    "glm": {
+      "provider": "openai_compatible",
+      "base_url": "https://www.iigpt.top/v1",
+      "model": "glm-5.2",
+      "request_options": {
+        "store": false,
+        "thinking": {"type": "disabled"}
+      },
+      "api_key": "YOUR_PROXY_OPENAI_API_KEY"
+    },
     "kimi": {
       "provider": "openai_compatible",
       "base_url": "https://api.moonshot.cn/v1",
-      "model": "moonshot-v1-8k",
+      "model": "kimi-k2.6",
+      "request_options": {
+        "thinking": {"type": "disabled"}
+      },
+      "omit_request_fields": ["temperature"],
       "api_key": "YOUR_KIMI_API_KEY"
     },
     "gpt": {
       "provider": "openai_compatible",
-      "base_url": "https://api.openai.com/v1",
-      "model": "gpt-4.1-mini",
-      "api_key": "YOUR_OPENAI_API_KEY"
+      "base_url": "https://www.iigpt.top/v1",
+      "model": "gpt-5.4-mini",
+      "request_options": {
+        "store": false,
+        "reasoning_effort": "low"
+      },
+      "omit_request_fields": ["temperature"],
+      "api_key": "YOUR_PROXY_OPENAI_API_KEY"
+    },
+    "gpt_proxy": {
+      "provider": "openai_compatible",
+      "base_url": "https://www.iigpt.top/v1",
+      "model": "gpt-5.4-mini",
+      "request_options": {
+        "store": false,
+        "reasoning_effort": "low"
+      },
+      "omit_request_fields": ["temperature"],
+      "api_key": "YOUR_PROXY_OPENAI_API_KEY"
     },
     "claude": {
-      "provider": "anthropic",
-      "base_url": "https://api.anthropic.com/v1",
-      "model": "claude-3-5-sonnet-latest",
-      "api_key": "YOUR_ANTHROPIC_API_KEY"
+      "provider": "openai_compatible",
+      "base_url": "https://www.iigpt.top/v1",
+      "model": "claude-haiku-4-5",
+      "request_options": {
+        "store": false
+      },
+      "api_key": "YOUR_PROXY_OPENAI_API_KEY"
     },
     "gemini": {
       "provider": "gemini",
       "base_url": "https://generativelanguage.googleapis.com/v1beta",
-      "model": "gemini-1.5-pro",
+      "model": "gemini-3.5-flash",
+      "request_options": {
+        "thinkingConfig": {"thinkingLevel": "low"}
+      },
       "api_key": "YOUR_GEMINI_API_KEY"
     }
   }

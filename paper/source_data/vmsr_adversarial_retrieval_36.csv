@@ -1,0 +1,9 @@
+method,episodes,coverage,irrelevant_rate,retrieved,policy_tokens,certificate_validity,certificate_minimality,oracle_match,stability,unknown_escalation,conflict_accuracy
+All policy,36,1.0,0.8864,11.67,378.67,1.0,,0.0,,,0.0
+BM25 top-3,36,0.8333,0.6667,3.0,100.81,0.7222,,0.0,,,0.0
+BM25 top-5,36,0.8611,0.7889,5.0,166.17,0.7222,,0.0,,,0.0
+Hybrid-MSR,36,0.6944,0.5486,2.89,99.0,0.6667,,0.1389,,,0.5
+MSR,36,1.0,0.6667,4.0,132.67,1.0,,0.0,,,0.0
+Policy-list diagnostic,36,1.0,0.0,1.33,43.67,1.0,,1.0,,,1.0
+V-MSR-Struct,36,1.0,0.0,1.33,43.67,1.0,1.0,1.0,0.8333,0.1667,1.0
+V-MSR-Text,36,1.0,0.0,1.33,29.67,1.0,1.0,1.0,0.8333,0.1667,1.0

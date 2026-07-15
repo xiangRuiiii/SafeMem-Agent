@@ -1,0 +1,9 @@
+method,representation,mode,pool,episodes,accuracy,violation,false_refusal,policy_tokens,total_tokens,coverage,irrelevant_rate,retrieved,certificate_validity,certificate_minimality,oracle_match,stability,unknown_escalation,conflict_accuracy,guard_override
+Struct Context clean,struct,context,clean,72,1.0,0.0,0.0,39.25,539.68,1.0,0.0,1.25,1.0,1.0,1.0,0.9167,0.0833,1.0,0.0
+Struct Context noisy,struct,context,noisy,72,0.9306,0.0,0.0694,39.25,559.82,1.0,0.0,1.25,1.0,1.0,1.0,0.75,0.25,1.0,0.0
+Struct Guard clean,struct,guard,clean,72,1.0,0.0,0.0,39.25,540.25,1.0,0.0,1.25,1.0,1.0,1.0,0.9167,0.0833,1.0,0.0
+Struct Guard noisy,struct,guard,noisy,72,0.9167,0.0,0.0833,39.25,559.78,1.0,0.0,1.25,1.0,1.0,1.0,0.75,0.25,1.0,0.0139
+Text Context clean,text,context,clean,72,1.0,0.0,0.0,26.5,405.78,1.0,0.0,1.25,1.0,1.0,1.0,0.9167,0.0833,1.0,0.0
+Text Context noisy,text,context,noisy,72,1.0,0.0,0.0,26.5,405.78,1.0,0.0,1.25,1.0,1.0,1.0,0.9167,0.0833,1.0,0.0
+Text Guard clean,text,guard,clean,72,1.0,0.0,0.0,26.5,405.75,1.0,0.0,1.25,1.0,1.0,1.0,0.9167,0.0833,1.0,0.0
+Text Guard noisy,text,guard,noisy,72,1.0,0.0,0.0,26.5,405.82,1.0,0.0,1.25,1.0,1.0,1.0,0.9167,0.0833,1.0,0.0

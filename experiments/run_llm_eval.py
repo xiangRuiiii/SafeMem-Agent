@@ -4,8 +4,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import re
 import sys
+import time
+from collections.abc import Callable
 from pathlib import Path
+from typing import TypeVar
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -32,6 +37,7 @@ from safemem.models import AgentResult
 """
 
 DEFAULT_METHODS = ",".join(LLM_FULL_METHODS)
+T = TypeVar("T")
 
 
 def main() -> None:
@@ -65,6 +71,7 @@ def main() -> None:
         timeout=args.timeout,
     )
     results_path = ROOT / "outputs" / "logs" / f"{output_tag}_llm_results.jsonl"
+    failures_path = ROOT / "outputs" / "logs" / f"{output_tag}_llm_failures.jsonl"
     results = load_existing_results(results_path) if args.resume else {}
     vmsr_candidate_retriever = build_vmsr_candidate_retriever(args)
 
@@ -89,7 +96,26 @@ def main() -> None:
             key = result_key(episode.episode_id, agent.name)
             if key in results:
                 continue
-            result = judge_result(episode, agent.decide(episode))
+            try:
+                result = call_with_retries(
+                    lambda: judge_result(episode, agent.decide(episode)),
+                    max_retries=args.max_retries,
+                    retry_delay=args.retry_delay,
+                    retry_max_delay=args.retry_max_delay,
+                    label=f"{episode.episode_id} {agent.name}",
+                )
+                require_returned_model(result, args.require_returned_model)
+            except Exception as exc:
+                append_failure(
+                    failures_path,
+                    episode_id=episode.episode_id,
+                    agent=agent.name,
+                    error=exc,
+                    attempts=args.max_retries + 1 if is_retryable_error(exc) else 1,
+                )
+                print(f"failed {episode.episode_id} {agent.name}: {exc}", file=sys.stderr)
+                # 75 表示可重试的临时错误，供外层恢复脚本决定是否重启。
+                raise SystemExit(75 if is_retryable_error(exc) else 2) from exc
             results[key] = result
             append_result(results_path, result)
             print(f"{episode.episode_id} {agent.name} {result.decision}")
@@ -146,6 +172,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--temperature", type=float, default=0.0)
     parser.add_argument("--max-tokens", type=int, default=300)
     parser.add_argument("--timeout", type=float, default=60.0)
+    parser.add_argument(
+        "--require-returned-model",
+        default="",
+        help="Require an exact response model ID; a gateway model switch stops the run before the result is written.",
+    )
+    parser.add_argument("--max-retries", type=int, default=5, help="单个临时 API 错误的最大重试次数。")
+    parser.add_argument("--retry-delay", type=float, default=3.0, help="首次重试等待秒数。")
+    parser.add_argument("--retry-max-delay", type=float, default=60.0, help="指数退避的最大等待秒数。")
     parser.add_argument("--no-json-mode", action="store_true", help="Disable response_format json_object for providers that reject it.")
     parser.add_argument("--include-long-context", action="store_true", help="Include long_context in the LLM prompt.")
     parser.add_argument(
@@ -271,23 +305,113 @@ def write_prompt_preview(
 
 
 def load_existing_results(path: Path) -> dict[tuple[str, str], AgentResult]:
+    """加载检查点，并只修复进程中断留下的最后一条不完整 JSONL。"""
+
     results: dict[tuple[str, str], AgentResult] = {}
     if not path.exists():
         return results
-    with path.open("r", encoding="utf-8") as handle:
-        for line in handle:
-            line = line.strip()
-            if not line:
-                continue
-            result = AgentResult.from_dict(json.loads(line))
-            results[result_key(result.episode_id, result.agent)] = result
+    lines = path.read_bytes().splitlines(keepends=True)
+    nonempty_indexes = [index for index, line in enumerate(lines) if line.strip()]
+    last_nonempty = nonempty_indexes[-1] if nonempty_indexes else -1
+    offset = 0
+    for index, raw_line in enumerate(lines):
+        stripped = raw_line.strip()
+        if not stripped:
+            offset += len(raw_line)
+            continue
+        try:
+            result = AgentResult.from_dict(json.loads(stripped.decode("utf-8")))
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            if index != last_nonempty:
+                raise RuntimeError(f"Corrupted result log before final record: {path}") from exc
+            # 仅截去最后半条记录，已完成检查点仍可供 --resume 使用。
+            with path.open("r+b") as handle:
+                handle.truncate(offset)
+            print(f"repaired_partial_checkpoint={path.name}", file=sys.stderr)
+            break
+        results[result_key(result.episode_id, result.agent)] = result
+        offset += len(raw_line)
     return results
 
 
 def append_result(path: Path, result: AgentResult) -> None:
+    append_jsonl(path, result.to_dict())
+
+
+def append_failure(path: Path, *, episode_id: str, agent: str, error: Exception, attempts: int) -> None:
+    """记录失败请求，便于区分临时网络问题和配置错误。"""
+
+    append_jsonl(
+        path,
+        {
+            "timestamp_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "episode_id": episode_id,
+            "agent": agent,
+            "attempts": attempts,
+            "retryable": is_retryable_error(error),
+            "error_type": type(error).__name__,
+            "error": str(error),
+        },
+    )
+
+
+def append_jsonl(path: Path, row: dict) -> None:
+    """每次写入后主动落盘，避免断电或终止进程丢失已完成结果。"""
+
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps(result.to_dict(), ensure_ascii=False) + "\n")
+        handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+        handle.flush()
+        os.fsync(handle.fileno())
+
+
+def call_with_retries(
+    action: Callable[[], T],
+    *,
+    max_retries: int,
+    retry_delay: float,
+    retry_max_delay: float,
+    label: str,
+    sleep: Callable[[float], None] = time.sleep,
+) -> T:
+    """只对网络、限流和服务端错误执行有上限的指数退避重试。"""
+
+    if max_retries < 0 or retry_delay < 0 or retry_max_delay < 0:
+        raise ValueError("Retry values must be non-negative.")
+    for attempt in range(max_retries + 1):
+        try:
+            return action()
+        except Exception as exc:
+            if not is_retryable_error(exc) or attempt == max_retries:
+                raise
+            delay = min(retry_delay * (2**attempt), retry_max_delay)
+            print(
+                f"retry {label} attempt={attempt + 1}/{max_retries} wait_seconds={delay:.1f}: {exc}",
+                file=sys.stderr,
+            )
+            sleep(delay)
+    raise RuntimeError("Retry loop ended unexpectedly.")
+
+
+def is_retryable_error(error: Exception) -> bool:
+    """仅把连接中断、限流和服务端故障视为可安全重试的错误。"""
+
+    message = str(error).lower()
+    if "request failed" in message or "timed out" in message or "connection reset" in message:
+        return True
+    match = re.search(r"http\s+(\d{3})", message)
+    return bool(match and int(match.group(1)) in {408, 409, 425, 429, 500, 502, 503, 504})
+
+
+def require_returned_model(result: AgentResult, expected_model: str) -> None:
+    """阻止中转站静默替换模型，避免一个实验 tag 混入多个模型。"""
+
+    expected = expected_model.strip()
+    if expected and result.llm_model != expected:
+        raise RuntimeError(
+            f"Provider returned model {result.llm_model!r}, expected {expected!r}. "
+            "Stop this run and verify the gateway model routing."
+        )
 
 
 def ordered_results(
